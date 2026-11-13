@@ -1,0 +1,101 @@
+extends RefCounted
+## Cores, fontes e tema do TabajaraOS. Use com preload("res://scripts/estilo.gd").
+
+const FUNDO := Color("0f131b")
+const PAINEL := Color("171d29")
+const PAINEL_CLARO := Color("222a3a")
+const BORDA := Color("33405a")
+const TEXTO := Color("e6e9f0")
+const TEXTO_FRACO := Color("8b95a8")
+const DESTAQUE := Color("ff4fa3")   # rosa
+const CIANO := Color("38d9e8")
+const OK := Color("5ee38a")
+const ERRO := Color("ff5d5d")
+const ALERTA := Color("ffc94d")
+
+const PERSONAGENS := {
+	"Valdecir": Color("ffc94d"),
+	"Jurema": Color("c792ff"),
+	"Kauã": Color("5ee38a"),
+	"CEO": Color("ff5d5d"),
+	"RH": Color("38d9e8"),
+	"Sistema": Color("8b95a8"),
+	"Você": Color("ff4fa3"),
+	"Auditor": Color("ffa04d"),
+	"Dona Cida": Color("7fc4ff"),
+}
+
+static var _mono: Font
+static var _tema: Theme
+
+
+static func mono() -> Font:
+	if _mono == null:
+		_mono = load("res://fontes/JetBrainsMono.ttf")
+	return _mono
+
+
+static func cor_de(quem: String) -> Color:
+	return PERSONAGENS.get(quem, CIANO)
+
+
+static func caixa(cor: Color, borda: Color = BORDA, raio := 6, margem := 10) -> StyleBoxFlat:
+	var s := StyleBoxFlat.new()
+	s.bg_color = cor
+	s.border_color = borda
+	s.set_border_width_all(1)
+	s.set_corner_radius_all(raio)
+	s.content_margin_left = margem
+	s.content_margin_right = margem
+	s.content_margin_top = margem * 0.6
+	s.content_margin_bottom = margem * 0.6
+	return s
+
+
+static func tema() -> Theme:
+	if _tema != null:
+		return _tema
+	var t := Theme.new()
+	t.default_font_size = 15
+	t.set_color("font_color", "Label", TEXTO)
+	t.set_color("default_color", "RichTextLabel", TEXTO)
+	t.set_font("normal_font", "RichTextLabel", null)
+	t.set_font("mono_font", "RichTextLabel", mono())
+	t.set_stylebox("panel", "Panel", caixa(PAINEL))
+	t.set_stylebox("panel", "PanelContainer", caixa(PAINEL))
+
+	t.set_stylebox("normal", "Button", caixa(PAINEL_CLARO, BORDA, 5, 12))
+	t.set_stylebox("hover", "Button", caixa(Color("2c3750"), DESTAQUE, 5, 12))
+	t.set_stylebox("pressed", "Button", caixa(Color("3a2a40"), DESTAQUE, 5, 12))
+	t.set_stylebox("disabled", "Button", caixa(Color("1a1f2a"), Color("252c3b"), 5, 12))
+	t.set_stylebox("focus", "Button", caixa(Color(0, 0, 0, 0), DESTAQUE, 5, 12))
+	t.set_color("font_color", "Button", TEXTO)
+	t.set_color("font_hover_color", "Button", Color.WHITE)
+	t.set_color("font_pressed_color", "Button", DESTAQUE)
+	t.set_color("font_disabled_color", "Button", TEXTO_FRACO)
+
+	for tipo in ["LineEdit", "TextEdit", "CodeEdit"]:
+		t.set_stylebox("normal", tipo, caixa(Color("0b0e14"), BORDA, 4, 8))
+		t.set_stylebox("focus", tipo, caixa(Color("0b0e14"), CIANO, 4, 8))
+		t.set_stylebox("read_only", tipo, caixa(Color("12161f"), BORDA, 4, 8))
+		t.set_color("font_color", tipo, TEXTO)
+		t.set_color("caret_color", tipo, DESTAQUE)
+		t.set_color("selection_color", tipo, Color(1.0, 0.31, 0.64, 0.35))
+		t.set_font("font", tipo, mono())
+		t.set_font_size("font_size", tipo, 14)
+
+	t.set_stylebox("normal", "OptionButton", caixa(PAINEL_CLARO, BORDA, 5, 12))
+	t.set_stylebox("hover", "OptionButton", caixa(Color("2c3750"), DESTAQUE, 5, 12))
+	t.set_stylebox("pressed", "OptionButton", caixa(Color("2c3750"), DESTAQUE, 5, 12))
+	t.set_stylebox("panel", "PopupMenu", caixa(PAINEL, BORDA, 4, 6))
+	t.set_stylebox("panel", "TooltipPanel", caixa(PAINEL, DESTAQUE, 4, 8))
+	t.set_stylebox("tab_selected", "TabContainer", caixa(PAINEL_CLARO, DESTAQUE, 4, 10))
+	t.set_stylebox("tab_unselected", "TabContainer", caixa(PAINEL, BORDA, 4, 10))
+	t.set_stylebox("panel", "TabContainer", caixa(PAINEL, BORDA, 4, 10))
+	t.set_stylebox("panel", "Tree", caixa(Color("0b0e14"), BORDA, 4, 4))
+	t.set_stylebox("panel", "ItemList", caixa(Color("0b0e14"), BORDA, 4, 4))
+	t.set_color("font_color", "Tree", TEXTO)
+	t.set_color("font_color", "ItemList", TEXTO)
+	t.set_color("font_color", "CheckBox", TEXTO)
+	_tema = t
+	return t
