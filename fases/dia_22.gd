@@ -36,7 +36,7 @@ var _tentou_none := false
 func _init() -> void:
 	dia = 22
 	titulo = "JWT do portal"
-	chamado = ("Pentest autorizado no portal do segurado (homologação). Você está {logada como a segurada|logado como o segurado} de teste. "
+	chamado = ("Pentest autorizado no portal do segurado (homologação). Você está {logada como a segurada|logado como o segurado|logade com a conta} de teste. "
 		+ "Decodifique o JWT, rode o [b]ataque de dicionário[/b] contra a assinatura HS256, forje um token com [b]role admin[/b], "
 		+ "assine e envie para [code]/api/admin[/code] até pegar a flag. No fim, escolha a recomendação do relatório. "
 		+ "Nota: segredo quebrado, flag e recomendação.")

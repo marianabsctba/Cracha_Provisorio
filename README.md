@@ -18,7 +18,7 @@ Você anda pelo escritório em primeira pessoa e recebe a tarefa do dia de algu�
 
 Na maioria dos dias o trabalho é no computador da sua mesa. Em quatro deles é no próprio andar.
 
-No começo você escolhe como o crachá te chama (estagiária ou estagiário), e o jogo inteiro acompanha.
+No começo você escolhe como o crachá te chama (estagiária, estagiário ou estagiárie), e o jogo inteiro acompanha.
 
 Controles: clique para olhar com o mouse, WASD anda, Shift corre, E interage, Esc solta o mouse.
 

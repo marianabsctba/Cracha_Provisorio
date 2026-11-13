@@ -42,6 +42,9 @@ func montar() -> void:
 	_atualizar()
 	chat("Valdecir", "A POL-SEG-0001 é minha obra-prima. 9 regras. Nenhum hacker passa.")
 	chat("Jurema", "Nenhum funcionário passa também. Metade da empresa anota a senha no monitor.")
+	if Jogo.genero == "n":
+		chat("Jurema", "Ah, e o sistema do RH travou no campo de gênero do seu cadastro. Consertei em cinco minutos. O sistema que se adapte, não você.")
+		chat("Valdecir", "Eu aprovei a mudança! Não sei o que mudou, mas aprovei rapidinho.")
 	aviso("Dica: as regras são chatas, mas todas são possíveis ao mesmo tempo.")
 
 

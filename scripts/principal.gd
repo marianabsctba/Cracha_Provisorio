@@ -37,6 +37,8 @@ func _ready() -> void:
 		_menu()
 		_escolher_genero(func(): pass)
 	elif args.has("final"):
+		if args.has("genero"):
+			Jogo.genero = args["genero"]
 		_mostrar_final(args["final"])
 	else:
 		_menu()
@@ -251,15 +253,20 @@ func _escolher_genero(depois: Callable, so_se_faltar := false) -> void:
 	linha.add_theme_constant_override("separation", 18)
 	linha.alignment = BoxContainer.ALIGNMENT_CENTER
 	v.add_child(linha)
-	for opcao in [["f", "ESTAGIÁRIA"], ["m", "ESTAGIÁRIO"]]:
+	var opcoes_cracha := [
+		["f", "ESTAGIÁRIA", "Impresso em 3 segundos."],
+		["m", "ESTAGIÁRIO", "Impresso em 3 segundos."],
+		["n", "ESTAGIÁRIE", "A impressora de 2009 pediu atualização. O RH atualizou. Ela agradece."],
+	]
+	for opcao in opcoes_cracha:
 		var b := Button.new()
-		b.custom_minimum_size = Vector2(240, 150)
+		b.custom_minimum_size = Vector2(250, 176)
 		b.add_theme_stylebox_override("normal", Estilo.caixa(Color("f6f2ea"), Color("0b0e14"), 14, 16))
 		b.add_theme_stylebox_override("hover", Estilo.caixa(Color("ffffff"), Estilo.DESTAQUE, 14, 16))
 		b.add_theme_stylebox_override("pressed", Estilo.caixa(Color("ffe3f0"), Estilo.DESTAQUE, 14, 16))
 		linha.add_child(b)
 		var dentro := VBoxContainer.new()
-		dentro.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		dentro.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT, Control.PRESET_MODE_MINSIZE, 14)
 		dentro.alignment = BoxContainer.ALIGNMENT_CENTER
 		dentro.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		b.add_child(dentro)
@@ -269,6 +276,9 @@ func _escolher_genero(depois: Callable, so_se_faltar := false) -> void:
 		nome.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var carimbo := _label(dentro, "PROVISÓRIO", 16, Estilo.DESTAQUE, true, Estilo.titulo(800))
 		carimbo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var legenda := _label(dentro, opcao[2], 12, Color("6b7486"), true)
+		legenda.custom_minimum_size = Vector2(200, 0)
+		legenda.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var escolha: String = opcao[0]
 		b.pressed.connect(func():
 			Jogo.genero = escolha
@@ -334,7 +344,7 @@ func _resultado(r: Dictionary) -> void:
 	if nota >= 90:
 		frase = ["Jurema: nada mal. Não conta para ninguém que eu disse isso.", "Valdecir: excelente! Vou apresentar como ideia minha.", "Kauã: caramba, até eu entendi."].pick_random()
 	elif nota >= 60:
-		frase = ["Jurema: passável. O atacante também acha.", "Valdecir: bom, bom. O que é que você fez mesmo?", "Dona Cida: amanhã tem bolo de fubá, {filha|filho}."].pick_random()
+		frase = ["Jurema: passável. O atacante também acha.", "Valdecir: bom, bom. O que é que você fez mesmo?", "Dona Cida: amanhã tem bolo de fubá, {filha|filho|filhe}."].pick_random()
 	else:
 		frase = ["Jurema: amanhã a gente finge que hoje não aconteceu.", "Valdecir: vou registrar como 'aprendizado'.", "Kauã: relaxa, eu derrubo produção toda semana."].pick_random()
 	_label(v, frase, 15, Estilo.CIANO, true)
@@ -367,17 +377,17 @@ func _mostrar_final(tipo: String) -> void:
 	v.add_child(espaco)
 	match tipo:
 		"promovida":
-			_label(v, "{PROMOVIDA|PROMOVIDO}", 72, Estilo.OK, true, Estilo.titulo(800))
+			_label(v, "{PROMOVIDA|PROMOVIDO|PROMOVIDE}", 72, Estilo.OK, true, Estilo.titulo(800))
 			_label(v, "Analista de Segurança da Informação Júnior", 22, Estilo.TEXTO, true)
-			_label(v, "O RH te chamou na sala. Você já estava preparando o discurso de despedida quando o Valdecir entrou com um bolo escrito \"PARABÉNS {EFETIVADA|EFETIVADO}\" (com a fonte Comic Sans, porque segundo ele \"transmite confiança\").\n\nO crachá novo não diz mais PROVISÓRIO. Diz ANALISTA. A foto ficou horrível, mas é sua.\n\nA Jurema deixou um post-it na sua mesa: \"Agora o problema é seu. Bem-{vinda|vindo}.\" Foi a coisa mais carinhosa que ela escreveu em 22 anos.\n\nO Kauã pediu para você aprovar um PR. Você recusou. Ele chorou. Vocês são amigos agora.", 17, Estilo.TEXTO)
+			_label(v, "O RH te chamou na sala. Você já estava preparando o discurso de despedida quando o Valdecir entrou com um bolo escrito \"PARABÉNS {EFETIVADA|EFETIVADO|EFETIVADE}\" (com a fonte Comic Sans, porque segundo ele \"transmite confiança\").\n\nO crachá novo não diz mais PROVISÓRIO. Diz ANALISTA. A foto ficou horrível, mas é sua.\n\nA Jurema deixou um post-it na sua mesa: \"Agora o problema é seu. Bem-{vinda|vindo|vinde}.\" Foi a coisa mais carinhosa que ela escreveu em 22 anos.\n\nO Kauã pediu para você aprovar um PR. Você recusou. Ele chorou. Vocês são amigos agora.", 17, Estilo.TEXTO)
 		"demitida":
-			_label(v, "{MANDADA|MANDADO} EMBORA", 72, Estilo.ERRO, true, Estilo.titulo(800))
+			_label(v, "{MANDADA|MANDADO|MANDADE} EMBORA", 72, Estilo.ERRO, true, Estilo.titulo(800))
 			_label(v, "Contrato de estágio encerrado \"por reestruturação\"", 20, Estilo.TEXTO_FRACO, true)
 			_label(v, "O Seu Josias recebeu ordem de recolher seu crachá. Ele pegou uma tesoura e cortou o PROVISÓRIO ao meio, devagar, olhando nos seus olhos. Depois te deu um abraço e um pão de queijo.\n\nO Valdecir disse que a decisão \"veio de cima\". A decisão veio dele. Ele estava em cima de uma cadeira trocando uma lâmpada quando decidiu.\n\nNo LinkadoIn você escreveu: \"Encerrando um ciclo de muito aprendizado. Gratidão.\" O post teve 3 curtidas: sua mãe, a Dona Cida e um recrutador oferecendo vaga no SOC.", 17, Estilo.TEXTO)
 		_:
-			_label(v, "{ESTAGIÁRIA|ESTAGIÁRIO} POR MAIS 15 ANOS", 56, Estilo.ALERTA, true, Estilo.titulo(800))
-			_label(v, "Nem {demitida|demitido}, nem {promovida|promovido}. {Renovada|Renovado}. De novo. E de novo.", 20, Estilo.TEXTO_FRACO, true)
-			_label(v, "2027: o contrato é renovado \"por mais seis meses, para avaliar melhor\".\n2029: você ganha uma cadeira com rodinhas. Três rodinhas.\n2031: você treina o novo estagiário. Ele é efetivado antes de você.\n2033: a política de senhas faz 24 anos. Você ainda não conseguiu mudar a regra dos dígitos que somam 25.\n2035: você vira a pessoa que sabe onde fica tudo. Inclusive o Raspberry Pi do estagiário de 2026.\n2037: o Valdecir se aposenta. O cargo dele vai para o Kauã.\n2039: a Jurema se aposenta e te deixa a caneca dela. É a maior honraria da empresa.\n2041: o crachá ainda diz PROVISÓRIO. O plástico já está amarelo. Você é {a funcionária mais antiga|o funcionário mais antigo} do andar. Oficialmente, você não existe no organograma.", 17, Estilo.TEXTO)
+			_label(v, "{ESTAGIÁRIA|ESTAGIÁRIO|ESTAGIÁRIE} POR MAIS 15 ANOS", 56, Estilo.ALERTA, true, Estilo.titulo(800))
+			_label(v, "Nem {demitida|demitido|demitide}, nem {promovida|promovido|promovide}. {Renovada|Renovado|Renovade}. De novo. E de novo.", 20, Estilo.TEXTO_FRACO, true)
+			_label(v, "2027: o contrato é renovado \"por mais seis meses, para avaliar melhor\".\n2029: você ganha uma cadeira com rodinhas. Três rodinhas.\n2031: você treina o novo estagiário. Ele é efetivado antes de você.\n2033: a política de senhas faz 24 anos. Você ainda não conseguiu mudar a regra dos dígitos que somam 25.\n2035: você vira a pessoa que sabe onde fica tudo. Inclusive o Raspberry Pi do estagiário de 2026.\n2037: o Valdecir se aposenta. O cargo dele vai para o Kauã.\n2039: a Jurema se aposenta e te deixa a caneca dela. É a maior honraria da empresa.\n2041: o crachá ainda diz PROVISÓRIO. O plástico já está amarelo. Você é {a funcionária mais antiga|o funcionário mais antigo|a pessoa mais antiga} do andar. Oficialmente, você não existe no organograma.", 17, Estilo.TEXTO)
 	if not Jogo.notas.is_empty():
 		_label(v, "\nBoletim do estágio  ·  média %.0f" % Jogo.media(), 18, Estilo.DESTAQUE)
 		var boletim := ""

@@ -65,7 +65,7 @@ func _jogar_missao(n: int, esc) -> void:
 var _rx := RegEx.create_from_string("[{][^{}]*[|][^{}]*[}]|[Ee]stagi[aá]ria|ESTAGIÁRIA|[Pp]romovida|[Dd]emitida|MANDADA|[Bb]em-vinda|mocinha")
 
 
-## Com o gênero masculino, nenhum texto visível pode ter marcador ou forma feminina de quem joga.
+## Fora do feminino, nenhum texto visível pode ter marcador ou forma feminina de quem joga.
 func _varrer(no: Node, onde: String) -> void:
 	for n in [no] + no.find_children("*", "", true, false):
 		var t := ""
@@ -73,15 +73,18 @@ func _varrer(no: Node, onde: String) -> void:
 			t = n.text
 		elif n is RichTextLabel:
 			t = n.text
-		if t != "" and _rx.search(t):
+		var genero: String = root.get_node("Jogo").genero
+		if t != "" and _rx.search(t) and (genero != "f" or t.contains("|")):
 			falhas += 1
-			print("FALHOU  texto no masculino (%s): %s" % [onde, t.left(120)])
+			print("FALHOU  texto fora do gênero %s (%s): %s" % [genero, onde, t.left(120)])
 
 
 func _rodar() -> void:
 	var jogo = root.get_node("Jogo")
 	jogo.novo_jogo()
-	jogo.genero = "m"
+	# GENERO=f|m|n (padrão m). Com m ou n, nenhuma forma feminina de quem joga pode aparecer.
+	jogo.genero = OS.get_environment("GENERO") if OS.get_environment("GENERO") != "" else "m"
+	print("gênero: ", jogo.genero)
 	var principal: Node = load("res://cenas/principal.tscn").instantiate()
 	root.add_child(principal)
 	await process_frame

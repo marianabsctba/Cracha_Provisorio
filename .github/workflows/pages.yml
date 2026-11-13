@@ -49,6 +49,7 @@ jobs:
           $G --headless --path . --import || true
           $G --headless --path . --script res://tests/run_tests.gd
           $G --headless --path . --script res://tests/fluxo.gd
+          GENERO=n $G --headless --path . --script res://tests/fluxo.gd
 
       - name: Exportar para web
         run: |

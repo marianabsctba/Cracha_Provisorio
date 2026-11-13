@@ -321,7 +321,7 @@ func _executar(linha_cmd: String) -> void:
 			if resto.contains("-r"):
 				_apagou = true
 				out = "rm: operação negada pela política do teste. O comitê inteiro olhou para você."
-				chat("Jurema", "rm -rf numa prova de efetivação. {Corajosa|Corajoso}. {Burra|Burro}, mas {corajosa|corajoso}.")
+				chat("Jurema", "rm -rf numa prova de efetivação. {Corajosa|Corajoso|Corajose}. {Burra|Burro|Burre}, mas {corajosa|corajoso|corajose}.")
 			else:
 				out = "rm: proibido apagar dados no teste (está no escopo)."
 		"exit":

@@ -5,8 +5,8 @@ const CAMINHO := "user://progresso.cfg"
 const TOTAL_DIAS := 30
 
 var dia_atual := 1
-var genero := ""       # "f" (estagiária) ou "m" (estagiário); vazio = ainda não escolheu
-var _rx_genero := RegEx.create_from_string("\\{([^{}|]*)\\|([^{}|]*)\\}")
+var genero := ""       # "f" (estagiária), "m" (estagiário) ou "n" (estagiárie); vazio = ainda não escolheu
+var _rx_genero := RegEx.create_from_string("[{]([^{}|]*)[|]([^{}|]*)(?:[|]([^{}|]*))?[}]")
 var notas := {}        # dia (int) -> nota 0..100
 var comentarios := {}  # dia (int) -> texto do resultado
 var cagadas := {}      # dia (int) -> descrição da cagada grave
@@ -16,22 +16,31 @@ func _ready() -> void:
 	carregar()
 
 
-## Troca os marcadores {feminino|masculino} pela forma do gênero escolhido.
+## Troca os marcadores {feminino|masculino|neutro} pela forma do gênero escolhido.
+## Sem a terceira forma, o neutro usa a masculina.
 func txt(s: String) -> String:
 	if not s.contains("|"):
 		return s
-	var usar := 1 if genero != "m" else 2
 	var saida := ""
 	var pos := 0
 	for m in _rx_genero.search_all(s):
-		saida += s.substr(pos, m.get_start() - pos) + m.get_string(usar)
+		var forma := m.get_string(1)
+		if genero == "m":
+			forma = m.get_string(2)
+		elif genero == "n":
+			forma = m.get_string(3) if m.get_start(3) >= 0 else m.get_string(2)
+		saida += s.substr(pos, m.get_start() - pos) + forma
 		pos = m.get_end()
 	return saida + s.substr(pos)
 
 
-## Atalho: g("a", "o") devolve a forma do gênero escolhido.
-func g(feminino: String, masculino: String) -> String:
-	return masculino if genero == "m" else feminino
+## Atalho: g("a", "o", "e") devolve a forma do gênero escolhido.
+func g(feminino: String, masculino: String, neutro := "") -> String:
+	if genero == "m":
+		return masculino
+	if genero == "n":
+		return neutro if neutro != "" else masculino
+	return feminino
 
 
 func novo_jogo() -> void:

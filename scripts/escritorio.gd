@@ -451,7 +451,7 @@ func _montar_andar() -> void:
 	pc.add_child(forma)
 	add_child(pc)
 	interativo(pc, "Sentar e usar o computador", _usar_pc)
-	var etiqueta := texto3d(MESA_PC + Vector3(0, 1.62, -0.3), "{ESTAGIÁRIA|ESTAGIÁRIO} (PROVISÓRIO)", 20, Estilo.DESTAQUE, null, Estilo.titulo(800))
+	var etiqueta := texto3d(MESA_PC + Vector3(0, 1.62, -0.3), "{ESTAGIÁRIA|ESTAGIÁRIO|ESTAGIÁRIE} (PROVISÓRIO)", 20, Estilo.DESTAQUE, null, Estilo.titulo(800))
 	etiqueta.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	etiqueta.double_sided = true
 	_impressora(Vector3(15.6, 0, 2.5))
