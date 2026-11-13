@@ -281,26 +281,22 @@ func _montar_ambiente() -> void:
 	env.background_mode = Environment.BG_COLOR
 	env.background_color = Color("1a1f2b")
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color("c9d3e6")
-	env.ambient_light_energy = 0.38
+	env.ambient_light_color = Color("e4e7ee")
+	env.ambient_light_energy = 0.72
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
-	env.glow_enabled = true
+	# Brilho só fora do navegador: no WebGL cada efeito a mais é shader a compilar
+	env.glow_enabled = not OS.has_feature("web")
 	env.glow_intensity = 0.35
 	amb.environment = env
 	add_child(amb)
+	# Uma luz direcional só (sem luzes pontuais): no renderizador de compatibilidade
+	# cada luz pontual é uma passada extra por objeto e o primeiro quadro no
+	# navegador levava vários segundos compilando shaders.
 	var sol := DirectionalLight3D.new()
-	sol.rotation_degrees = Vector3(-60, 30, 0)
-	sol.light_energy = 0.25
+	sol.rotation_degrees = Vector3(-62, 28, 0)
+	sol.light_energy = 0.55
 	sol.light_color = Color("fff3e0")
 	add_child(sol)
-	for p in [Vector3(-10, 2.8, 2), Vector3(0, 2.8, 2), Vector3(10, 2.8, 2), Vector3(-12, 2.8, -7),
-			Vector3(-5, 2.8, -8), Vector3(3, 2.8, -7.5), Vector3(12.5, 2.8, -7), Vector3(0, 2.8, 7.5)]:
-		var luz := OmniLight3D.new()
-		luz.position = p
-		luz.omni_range = 9.0
-		luz.light_energy = 0.75
-		luz.light_color = Color("fff6ea")
-		add_child(luz)
 
 
 func _parede(x1: float, z1: float, x2: float, z2: float, cor := Color("d8d4cc"), alt := 3.0) -> void:
