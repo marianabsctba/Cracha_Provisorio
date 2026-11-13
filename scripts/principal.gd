@@ -177,7 +177,9 @@ func _menu() -> void:
 	logo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	logo.pivot_offset = Vector2(59, 0)
 	topo.add_child(logo)
-	var tw := create_tween().set_loops()
+	# A animação pertence ao logo: morre junto com ele. Presa ao menu, ela girava em
+	# laço infinito sem alvo depois que o logo saía da tela e congelava o navegador.
+	var tw := logo.create_tween().set_loops()
 	tw.tween_property(logo, "rotation", 0.07, 1.6).set_trans(Tween.TRANS_SINE)
 	tw.tween_property(logo, "rotation", -0.07, 1.6).set_trans(Tween.TRANS_SINE)
 	var nome := VBoxContainer.new()
