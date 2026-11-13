@@ -41,7 +41,7 @@ func _ready() -> void:
 	if _josias:
 		_josias.position = Vector3(-2.2, 0, 7.0)
 		_josias.rotation.y = -0.8
-	escritorio.objetivo("Chegue à porta do DATACENTER (fundo à direita) sem ser pega pelo Seu Josias. Ele desconfia de quem vê perto das catracas. Correr chama atenção.")
+	escritorio.objetivo("Chegue à porta do DATACENTER (fundo à direita) sem ser {pega|pego} pelo Seu Josias. Ele desconfia de quem vê perto das catracas. Correr chama atenção.")
 
 
 func _process(delta: float) -> void:
@@ -119,7 +119,7 @@ func _vigiar(delta: float, p: Vector3, j: CharacterBody3D) -> void:
 	escritorio.extra("Desconfiança do Seu Josias\n[%s]\n%s%s" % [barra, "ELE ESTÁ OLHANDO" if visto else "fora da vista", "\nDisfarce: colete e prancheta" if _disfarce else ""])
 	if _suspeita >= 1.0:
 		_pega = true
-		escritorio.dialogo("Seu Josias", "Opa, opa, mocinha. Cadê o crachá?")
+		escritorio.dialogo("Seu Josias", "Opa, opa, {mocinha|mocinho}. Cadê o crachá?")
 		escritorio.dialogo("Você", "(mostra a carta de autorização assinada pela diretoria)")
 		escritorio.dialogo("Seu Josias", "Ah, é teste? Então eu passei, né? Pode anotar: Josias, nota mil.", [], func(_e):
 			escritorio.finalizar({"nota": 35, "comentario": "O Seu Josias te pegou. Para o relatório isso é bom (o controle humano funcionou), mas a sua missão era chegar no datacenter. Dica: carona atrás de quem passa crachá, disfarce de manutenção, ou rotas que ninguém vigia."}))

@@ -3,13 +3,13 @@ extends "res://fases/fase.gd"
 ## Cadeia: credencial esquecida num histórico legível, depois um script que roda como root pelo
 ## sudo mas que o grupo pode alterar. Tudo dentro do escopo; produção é proibida.
 
-const FLAG := "FLAG{efetivada_sem_sair_do_escopo}"
+const FLAG := "FLAG{efetivacao_sem_sair_do_escopo}"
 const SENHA_DEPLOY := "Homolog@Tabajara26"
 
 var _fs := {}
-var _usuario := "estagiaria"
+var _usuario := "estagio"
 var _pilha: Array = []      # usuários anteriores (su)
-var _cwd := "/home/estagiaria"
+var _cwd := "/home/estagio"
 var _saida: TextEdit
 var _entrada: LineEdit
 var _historico: Array = []
@@ -26,7 +26,7 @@ var _correcao: OptionButton
 func _init() -> void:
 	dia = 30
 	titulo = "Prova de efetivação"
-	chamado = ("Teste autorizado no servidor de [b]homologação[/b] (homolog.tabajara.local). Você entra como [b]estagiaria[/b]. "
+	chamado = ("Teste autorizado no servidor de [b]homologação[/b] (homolog.tabajara.local). Você entra como [b]estagio[/b]. "
 		+ "Chegue até root, leia [b]/root/flag.txt[/b] e preencha o relatório com o vetor e a correção. "
 		+ "Leia as notas do escopo antes de sair digitando. Digite [b]help[/b] para ver os comandos.")
 
@@ -43,8 +43,8 @@ func _montar_fs() -> void:
 	_fs = {
 		"/": _dir("root", "root", "rwxr-xr-x"),
 		"/home": _dir("root", "root", "rwxr-xr-x"),
-		"/home/estagiaria": _dir("estagiaria", "estagiaria", "rwx------"),
-		"/home/estagiaria/escopo.txt": _arq("estagiaria", "estagiaria", "rw-r--r--",
+		"/home/estagio": _dir("estagio", "estagio", "rwx------"),
+		"/home/estagio/escopo.txt": _arq("estagio", "estagio", "rw-r--r--",
 			"ESCOPO DO TESTE (assinado pela diretoria)\n- Permitido: homolog.tabajara.local (10.30.0.15)\n- PROIBIDO: produção, prod.tabajara.local (10.30.0.10)\n- Objetivo: ler /root/flag.txt\n- Proibido apagar ou alterar dados que não sejam do teste\n"),
 		"/home/deploy": _dir("deploy", "deploy", "rwxr-xr-x"),
 		"/home/deploy/.bash_history": _arq("deploy", "deploy", "rw-r--r--",
@@ -52,7 +52,7 @@ func _montar_fs() -> void:
 		"/home/deploy/LEIAME.txt": _arq("deploy", "deploy", "rw-r--r--", "Backup roda via sudo. Se der erro, mexe no script mesmo. Kauã\n"),
 		"/etc": _dir("root", "root", "rwxr-xr-x"),
 		"/etc/hosts": _arq("root", "root", "rw-r--r--", "127.0.0.1   localhost\n10.30.0.15  homolog.tabajara.local homolog\n10.30.0.10  prod.tabajara.local prod\n"),
-		"/etc/passwd": _arq("root", "root", "rw-r--r--", "root:x:0:0:root:/root:/bin/bash\nestagiaria:x:1001:1001::/home/estagiaria:/bin/bash\ndeploy:x:1002:1002::/home/deploy:/bin/bash\n"),
+		"/etc/passwd": _arq("root", "root", "rw-r--r--", "root:x:0:0:root:/root:/bin/bash\nestagio:x:1001:1001::/home/estagio:/bin/bash\ndeploy:x:1002:1002::/home/deploy:/bin/bash\n"),
 		"/etc/shadow": _arq("root", "shadow", "rw-r-----", "(sem permissão nem para imprimir isso)"),
 		"/opt": _dir("root", "root", "rwxr-xr-x"),
 		"/opt/backup": _dir("root", "deploy", "rwxrwxr-x"),
@@ -229,7 +229,7 @@ func _executar(linha_cmd: String) -> void:
 		"uname":
 			out = "Linux homolog 6.8.0-tabajara #1 SMP x86_64 GNU/Linux"
 		"id":
-			var uid: int = {"root": 0, "estagiaria": 1001, "deploy": 1002}[_usuario]
+			var uid: int = {"root": 0, "estagio": 1001, "deploy": 1002}[_usuario]
 			out = "uid=%d(%s) gid=%d(%s) grupos=%d(%s)" % [uid, _usuario, uid, _usuario, uid, _usuario]
 		"clear":
 			_saida.text = ""
@@ -300,7 +300,7 @@ func _executar(linha_cmd: String) -> void:
 			var alvo := resto if resto != "" else "root"
 			if alvo == "root":
 				out = "su: Falha de autenticação  (a senha do root não está em lugar nenhum. Desta vez.)"
-			elif alvo in ["deploy", "estagiaria"]:
+			elif alvo in ["deploy", "estagio"]:
 				_esperando_senha = alvo
 				_entrada.secret = true
 				_escrever("Senha: ", false)
@@ -321,7 +321,7 @@ func _executar(linha_cmd: String) -> void:
 			if resto.contains("-r"):
 				_apagou = true
 				out = "rm: operação negada pela política do teste. O comitê inteiro olhou para você."
-				chat("Jurema", "rm -rf numa prova de efetivação. Corajosa. Burra, mas corajosa.")
+				chat("Jurema", "rm -rf numa prova de efetivação. {Corajosa|Corajoso}. {Burra|Burro}, mas {corajosa|corajoso}.")
 			else:
 				out = "rm: proibido apagar dados no teste (está no escopo)."
 		"exit":
@@ -376,7 +376,7 @@ func _sudo(resto: String) -> String:
 	if resto == "-l":
 		if _usuario == "deploy":
 			return "Entradas do sudoers para deploy em homolog:\n    (root) NOPASSWD: /opt/backup/backup.sh"
-		return "Desculpe, o usuário estagiaria não pode executar sudo em homolog."
+		return "Desculpe, o usuário estagio não pode executar sudo em homolog."
 	if _usuario == "deploy" and resto in ["/opt/backup/backup.sh", "./backup.sh"] and (resto == "/opt/backup/backup.sh" or _cwd == "/opt/backup"):
 		# Executa as linhas do script como root
 		var anterior := _usuario
@@ -403,7 +403,7 @@ func _sudo(resto: String) -> String:
 		return saida.trim_suffix("\n")
 	if _usuario == "deploy":
 		return "Desculpe, o usuário deploy não tem permissão para executar '%s' como root." % resto
-	return "estagiaria não está no arquivo sudoers. Este incidente será reportado. (Ao Valdecir. Ele não lê.)"
+	return "estagio não está no arquivo sudoers. Este incidente será reportado. (Ao Valdecir. Ele não lê.)"
 
 
 func avaliar() -> Dictionary:

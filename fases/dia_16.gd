@@ -52,7 +52,7 @@ const PERGUNTA := [
 	"3 backups por dia, 2 administradores com a senha, 1 planilha de controle",
 	"3 cópias dos dados, em 2 mídias diferentes, 1 delas fora do local (hoje: 3-2-1-1-0, com 1 offline ou imutável e 0 erros no teste de restauração)",
 	"3 NAS na mesma rede, 2 em RAID 6, 1 no rack do lado para facilitar",
-	"3 semanas de retenção, 2 fitas, 1 estagiária responsável por tudo",
+	"3 semanas de retenção, 2 fitas, 1 {estagiária|estagiário} responsável por tudo",
 ]
 
 var _abas: TabContainer

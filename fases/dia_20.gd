@@ -117,7 +117,7 @@ func montar() -> void:
 		_checar(i)
 	chat("Kauã", "STRIDE achei que era chiclete. Mas já entendi: são seis jeitos de o app dar ruim, né? Só seis? Que alívio.")
 	chat("Jurema", "Seis categorias, Kauã. Jeitos de dar ruim com você no projeto são infinitos.")
-	chat("Jurema", "Estagiária: não chuta categoria. Olha o elemento. Entidade externa não sofre DoS no nosso modelo, sofre gente fingindo ser ela.")
+	chat("Jurema", "{Estagiária|Estagiário}: não chuta categoria. Olha o elemento. Entidade externa não sofre DoS no nosso modelo, sofre gente fingindo ser ela.")
 	aviso("A etiqueta ao lado de cada cartão diz se a combinação respeita a regra do STRIDE por elemento.")
 
 

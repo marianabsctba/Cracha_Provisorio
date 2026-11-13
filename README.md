@@ -1,6 +1,6 @@
 # Crachá Provisório
 
-Jogo de navegador sobre os 30 primeiros dias de uma estagiária de segurança da informação na fictícia **Tabajara Seguros S.A.**, longe do SOC.
+Jogo de navegador sobre os 30 primeiros dias de estágio em segurança da informação na fictícia **Tabajara Seguros S.A.**, longe do SOC.
 
 Cada dia é uma área diferente da segurança, com uma mecânica própria. O humor é de escritório e as técnicas são de verdade: hash, HMAC, regex, CVSS 3.1, CIDR, Diffie-Hellman, JWT e first-match de firewall são todos calculados de fato, não encenados.
 
@@ -18,13 +18,15 @@ Você anda pelo escritório em primeira pessoa e recebe a tarefa do dia de algu�
 
 Na maioria dos dias o trabalho é no computador da sua mesa. Em quatro deles é no próprio andar.
 
+No começo você escolhe como o crachá te chama (estagiária ou estagiário), e o jogo inteiro acompanha.
+
 Controles: clique para olhar com o mouse, WASD anda, Shift corre, E interage, Esc solta o mouse.
 
 No fim dos 30 dias, o RH decide:
 
-- **Promovida:** média 75 ou mais e nenhuma cagada grave.
-- **Mandada embora:** média abaixo de 45 ou duas cagadas graves.
-- **Estagiária por mais 15 anos:** todo o resto.
+- **Promoção:** média 75 ou mais e nenhuma cagada grave.
+- **Rua:** média abaixo de 45 ou duas cagadas graves.
+- **Mais 15 anos de estágio:** todo o resto.
 
 ## Os 30 dias
 

@@ -28,7 +28,7 @@ PAT-0005  Desktop recepção    D8:9E:F3:41:22:07
 PAT-0006  Desktop Jurema      D8:9E:F3:41:22:15
 PAT-0007  Impressora andar    00:1B:A9:4C:22:10
 PAT-0008  Desktop Kauã        D8:9E:F3:41:22:16
-PAT-0009  Desktop estagiária  D8:9E:F3:41:22:19
+PAT-0009  Desktop estágio     D8:9E:F3:41:22:19
 PAT-0010  AP Wi-Fi corp       F0:9F:C2:7D:01:01
 PAT-0011  Telefone recepção   00:04:F2:91:7A:03
 PAT-0012  NVR câmeras         BC:AD:28:00:31:0C

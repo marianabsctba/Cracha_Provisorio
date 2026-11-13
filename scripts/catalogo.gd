@@ -4,7 +4,7 @@ extends RefCounted
 
 const DIAS := [
 	{"titulo": "Política de senhas", "area": "IAM", "tipo": "pc", "quem": "Valdecir",
-	 "briefing": "Bem-vinda à Tabajara Seguros! Primeira missão: criar sua senha de rede. A política foi escrita por mim em 2009 e nunca falhou. Nunca foi testada também, mas isso é detalhe."},
+	 "briefing": "Bem-{vinda|vindo} à Tabajara Seguros! Primeira missão: criar sua senha de rede. A política foi escrita por mim em 2009 e nunca falhou. Nunca foi testada também, mas isso é detalhe."},
 	{"titulo": "Inventário de ativos", "area": "Gestão de ativos", "tipo": "3d", "quem": "Jurema",
 	 "briefing": "A planilha de ativos diz que temos 14 equipamentos. O switch diz que tem 19 coisas plugadas. Anda pelo andar e etiqueta o que não está na planilha. Não liga nada que você achar, pelo amor de Deus."},
 	{"titulo": "Revisão de acessos", "area": "IAM", "tipo": "pc", "quem": "Valdecir",

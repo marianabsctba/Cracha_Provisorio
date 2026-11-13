@@ -134,7 +134,7 @@ func _montar_moldura() -> void:
 		rt.bbcode_enabled = true
 		rt.fit_content = true
 		rt.scroll_active = false
-		rt.text = "[color=#ff4fa3][b]CHAMADO #%d[/b][/color]  %s" % [4000 + dia * 37, chamado]
+		rt.text = "[color=#ff4fa3][b]CHAMADO #%d[/b][/color]  %s" % [4000 + dia * 37, Jogo.txt(chamado)]
 		painel.add_child(rt)
 
 	var rolagem := ScrollContainer.new()
@@ -200,7 +200,7 @@ func finalizar(nota: int, comentario: String, cagada := "") -> void:
 	if encerrada:
 		return
 	encerrada = true
-	concluida.emit({"dia": dia, "nota": clampi(nota, 0, 100), "comentario": comentario, "cagada": cagada})
+	concluida.emit({"dia": dia, "nota": clampi(nota, 0, 100), "comentario": Jogo.txt(comentario), "cagada": Jogo.txt(cagada)})
 
 
 ## Esconde ou mostra o botão de entregar (para fases que encerram sozinhas).
@@ -209,7 +209,7 @@ func mostrar_entregar(sim: bool) -> void:
 
 
 func aviso(texto: String, cor: Color = Estilo.TEXTO_FRACO) -> void:
-	_aviso.text = texto
+	_aviso.text = Jogo.txt(texto)
 	_aviso.add_theme_color_override("font_color", cor)
 
 
@@ -223,7 +223,7 @@ func chat(quem: String, msg: String) -> void:
 	nome.add_theme_font_size_override("font_size", 13)
 	caixa.add_child(nome)
 	var t := Label.new()
-	t.text = msg
+	t.text = Jogo.txt(msg)
 	t.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	t.custom_minimum_size = Vector2(280, 0)
 	t.add_theme_font_size_override("font_size", 14)
@@ -236,7 +236,7 @@ func chat(quem: String, msg: String) -> void:
 
 func rotulo(texto: String, tamanho := 15, cor: Color = Estilo.TEXTO, pai: Control = null) -> Label:
 	var l := Label.new()
-	l.text = texto
+	l.text = Jogo.txt(texto)
 	# Dentro de linhas e grades, quebra automática deixa o rótulo com largura zero
 	# (vira uma coluna de letras); ali o texto fica numa linha só.
 	if pai is HBoxContainer or pai is GridContainer:
@@ -254,7 +254,7 @@ func texto_rico(bbcode: String, pai: Control = null) -> RichTextLabel:
 	rt.bbcode_enabled = true
 	rt.fit_content = true
 	rt.scroll_active = false
-	rt.text = bbcode
+	rt.text = Jogo.txt(bbcode)
 	rt.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	(pai if pai else corpo).add_child(rt)
 	return rt
@@ -287,7 +287,7 @@ func campo(dica := "", pai: Control = null) -> LineEdit:
 
 func botao(texto: String, acao: Callable, pai: Control = null) -> Button:
 	var b := Button.new()
-	b.text = texto
+	b.text = Jogo.txt(texto)
 	b.pressed.connect(acao)
 	(pai if pai else corpo).add_child(b)
 	return b
@@ -314,14 +314,14 @@ func painel(pai: Control = null, cor: Color = Estilo.PAINEL) -> VBoxContainer:
 func opcoes(itens: Array, pai: Control = null) -> OptionButton:
 	var ob := OptionButton.new()
 	for i in itens:
-		ob.add_item(str(i))
+		ob.add_item(Jogo.txt(str(i)))
 	(pai if pai else corpo).add_child(ob)
 	return ob
 
 
 func caixa_marcar(texto: String, pai: Control = null) -> CheckBox:
 	var cb := CheckBox.new()
-	cb.text = texto
+	cb.text = Jogo.txt(texto)
 	(pai if pai else corpo).add_child(cb)
 	return cb
 

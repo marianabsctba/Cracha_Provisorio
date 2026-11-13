@@ -26,7 +26,7 @@ const TURNOS := [
 	{"ceo": "Li que o MFA do concorrente foi burlado com fadiga de push. Então não serve pra nada.",
 	 "cartas": [
 		["Fadiga de push se resolve com number matching, ou melhor ainda, com FIDO2: não tem notificação para aprovar sem querer e é resistente a phishing.", -20, 5, "Então o problema era o tipo de MFA, não o MFA."],
-		["Isso é notícia falsa, MFA nunca foi burlado.", 0, -20, "Saiu no jornal econômico, menina."],
+		["Isso é notícia falsa, MFA nunca foi burlado.", 0, -20, "Saiu no jornal econômico, {menina|menino}."],
 		["Por isso vamos mandar 3 notificações em vez de uma.", 10, -10, "Mais notificações? No meio da tacada?"],
 	]},
 	{"ceo": "Meu sobrinho é de TI e disse que senha forte basta.",

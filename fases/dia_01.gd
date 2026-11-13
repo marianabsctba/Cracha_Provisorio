@@ -2,7 +2,7 @@ extends "res://fases/fase.gd"
 ## Dia 1: a política de senhas absurda do Valdecir, e o que o NIST diz de verdade.
 
 const PLANETAS := ["mercurio", "venus", "terra", "marte", "jupiter", "saturno", "urano", "netuno"]
-const PROIBIDAS := ["tabajara", "senha", "123", "2026", "estagiaria", "qwerty"]
+const PROIBIDAS := ["tabajara", "senha", "123", "2026", "estagio", "qwerty"]
 const VAZADAS := ["Password1!", "Senha@12345678", "Tabajara@2026", "Marte@Venus2024!", "Brasil@1234567"]
 
 var _senha: LineEdit
@@ -22,7 +22,7 @@ func _init() -> void:
 
 
 func montar() -> void:
-	rotulo("Nova senha para o usuário estagiaria.prov:", 15, Estilo.TEXTO_FRACO)
+	rotulo("Nova senha para o usuário estagio.prov:", 15, Estilo.TEXTO_FRACO)
 	_senha = campo("digite aqui (as regras se atualizam a cada tecla)")
 	_senha.secret = false
 	_senha.text_changed.connect(func(_t): _atualizar())

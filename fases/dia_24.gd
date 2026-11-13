@@ -438,7 +438,7 @@ func montar() -> void:
 	_atualizar()
 	chat("Kauã", "Sobe em 3 segundos! Tá, o pull leva 14 minutos, mas depois sobe em 3 segundos.")
 	chat("Jurema", "Tem SSH com senha root:tabajara dentro de um contêiner. Kauã, contêiner não é VM. É um processo com crise de identidade.")
-	chat("Jurema", "Estagiária: zera os críticos. E a senha do banco sai do ENV. Nem ARG, que também fica no histórico.")
+	chat("Jurema", "{Estagiária|Estagiário}: zera os críticos. E a senha do banco sai do ENV. Nem ARG, que também fica no histórico.")
 
 
 func _atualizar() -> void:

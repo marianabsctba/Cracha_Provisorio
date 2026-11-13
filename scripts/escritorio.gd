@@ -10,6 +10,7 @@ const Estilo := preload("res://scripts/estilo.gd")
 const Catalogo := preload("res://scripts/catalogo.gd")
 const Jogador := preload("res://scripts/jogador.gd")
 const Gente := preload("res://scripts/gente3d.gd")
+const Materiais := preload("res://scripts/materiais.gd")
 
 const MESA_PC := Vector3(3.6, 0, 1.6)
 
@@ -129,18 +130,18 @@ func _unhandled_input(evento: InputEvent) -> void:
 # ================================================================ API para missões
 
 func objetivo(texto: String) -> void:
-	_objetivo.text = texto
+	_objetivo.text = Jogo.txt(texto)
 
 
 func extra(texto: String) -> void:
-	_extra.text = texto
+	_extra.text = Jogo.txt(texto)
 	_extra.visible = texto != ""
 
 
 ## Mostra uma fala. `opcoes` é uma lista de textos; `ao_escolher(indice)` é chamado
 ## com o índice escolhido (ou -1 quando não há opções e a fala acaba).
 func dialogo(quem: String, texto: String, opcoes: Array = [], ao_escolher := Callable()) -> void:
-	_dlg_fila.append([quem, texto, opcoes, ao_escolher])
+	_dlg_fila.append([quem, Jogo.txt(texto), opcoes.map(func(o): return Jogo.txt(str(o))), ao_escolher])
 	if not _dlg.visible:
 		_mostrar_proxima()
 
@@ -176,21 +177,8 @@ func interativo(no: Node, nome: String, acao: Callable) -> void:
 	no.set_meta("nome", nome)
 
 
-func material(cor: Color, emissao := 0.0, transparente := false) -> StandardMaterial3D:
-	var chave := "%s|%s|%s" % [cor.to_html(), emissao, transparente]
-	if _materiais.has(chave):
-		return _materiais[chave]
-	var m := StandardMaterial3D.new()
-	m.albedo_color = cor
-	m.roughness = 0.8
-	if emissao > 0.0:
-		m.emission_enabled = true
-		m.emission = cor
-		m.emission_energy_multiplier = emissao
-	if transparente:
-		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	_materiais[chave] = m
-	return m
+func material(cor: Color, emissao := 0.0, _transparente := false) -> Material:
+	return Materiais.cor(cor, emissao)
 
 
 ## Caixa sólida (com colisão se `solido`). `pos` é o centro da base.
@@ -221,7 +209,7 @@ func caixa(pos: Vector3, tam: Vector3, cor: Color, solido := true, emissao := 0.
 func texto3d(pos: Vector3, texto: String, tamanho := 48, cor: Color = Color.WHITE, pai: Node = null, fonte: Font = null) -> Label3D:
 	var l := Label3D.new()
 	l.font = fonte if fonte else Estilo.texto(700)
-	l.text = texto
+	l.text = Jogo.txt(texto)
 	l.font_size = tamanho
 	l.modulate = cor
 	l.outline_size = 8
@@ -289,14 +277,6 @@ func _montar_ambiente() -> void:
 	env.glow_intensity = 0.35
 	amb.environment = env
 	add_child(amb)
-	# Uma luz direcional só (sem luzes pontuais): no renderizador de compatibilidade
-	# cada luz pontual é uma passada extra por objeto e o primeiro quadro no
-	# navegador levava vários segundos compilando shaders.
-	var sol := DirectionalLight3D.new()
-	sol.rotation_degrees = Vector3(-62, 28, 0)
-	sol.light_energy = 0.55
-	sol.light_color = Color("fff3e0")
-	add_child(sol)
 
 
 func _parede(x1: float, z1: float, x2: float, z2: float, cor := Color("d8d4cc"), alt := 3.0) -> void:
@@ -351,16 +331,7 @@ func modelo(caminho: String, pos: Vector3, tam = 1.0, rot := 0.0, cores := {}, s
 		forma.shape = bs
 		forma.position.y = bs.size.y / 2.0
 		raiz.add_child(forma)
-	if not cores.is_empty():
-		var lista: Array = vis.find_children("*", "MeshInstance3D", true, false)
-		if vis is MeshInstance3D:
-			lista.append(vis)
-		for m in lista:
-			var mi := m as MeshInstance3D
-			for i in mi.mesh.get_surface_count():
-				var mat := mi.mesh.surface_get_material(i)
-				if mat and cores.has(mat.resource_name):
-					mi.set_surface_override_material(i, material(cores[mat.resource_name]))
+	Materiais.aplicar(vis, cores)
 	(pai if pai else self).add_child(raiz)
 	return raiz
 
@@ -468,7 +439,7 @@ func _montar_andar() -> void:
 		for z in [-1.0, 1.6]:
 			_mesa(Vector3(x, 0, z), k)
 			k += 1
-	# A mesa da estagiária
+	# A mesa de quem joga
 	_mesa(MESA_PC, 99, true)
 	var pc := StaticBody3D.new()
 	pc.position = MESA_PC + Vector3(0, 0.76, -0.25)
@@ -480,7 +451,7 @@ func _montar_andar() -> void:
 	pc.add_child(forma)
 	add_child(pc)
 	interativo(pc, "Sentar e usar o computador", _usar_pc)
-	var etiqueta := texto3d(MESA_PC + Vector3(0, 1.62, -0.3), "ESTAGIÁRIA (PROVISÓRIO)", 20, Estilo.DESTAQUE, null, Estilo.titulo(800))
+	var etiqueta := texto3d(MESA_PC + Vector3(0, 1.62, -0.3), "{ESTAGIÁRIA|ESTAGIÁRIO} (PROVISÓRIO)", 20, Estilo.DESTAQUE, null, Estilo.titulo(800))
 	etiqueta.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	etiqueta.double_sided = true
 	_impressora(Vector3(15.6, 0, 2.5))
@@ -499,10 +470,8 @@ func _teto() -> void:
 		for x in 64:
 			var borda := x < 2 or y < 2
 			img.set_pixel(x, y, Color("b9bcc2") if borda else Color("eceae6").lightened(randf() * 0.02))
-	var m := StandardMaterial3D.new()
 	img.generate_mipmaps()
-	m.albedo_texture = ImageTexture.create_from_image(img)
-	m.uv1_scale = Vector3(34.0 / 0.6, 22.0 / 0.6, 1)
+	var m := Materiais.textura(ImageTexture.create_from_image(img), Vector2(34.0 / 0.6, 22.0 / 0.6), Color.WHITE, 0.15)
 	superficie(Vector3(0, 2.99, 0), Vector2(34, 22), m, true)
 	for x in [-10, -4, 2, 8, 13]:
 		for z in [-7, -1, 4]:
@@ -738,26 +707,19 @@ func _piso() -> void:
 			img.set_pixel(x, y, c)
 	img.generate_mipmaps()
 	var tex := ImageTexture.create_from_image(img)
-	var m := StandardMaterial3D.new()
-	m.albedo_texture = tex
-	m.uv1_scale = Vector3(17, 11, 1)
-	m.roughness = 1.0
+	var m := Materiais.textura(tex, Vector2(17, 11))
 	var piso := caixa(Vector3(0, -0.1, 0), Vector3(34, 0.1, 22), Color.WHITE)
 	(piso.get_child(1) as MeshInstance3D).visible = false
 	superficie(Vector3(0, 0.0, 0), Vector2(34, 22), m)
 	# Porcelanato na recepção e na copa
-	var p2 := StandardMaterial3D.new()
 	var img2 := Image.create(64, 64, false, Image.FORMAT_RGB8)
 	for y in 64:
 		for x in 64:
 			img2.set_pixel(x, y, Color("8f8a82") if x < 1 or y < 1 else Color("d8d2c6").darkened(rng.randf_range(0.0, 0.04)))
 	img2.generate_mipmaps()
-	p2.albedo_texture = ImageTexture.create_from_image(img2)
-	p2.roughness = 0.35
-	p2.uv1_scale = Vector3(34.0 / 0.8, 6.0 / 0.8, 1)
-	superficie(Vector3(0, 0.004, 8.0), Vector2(34, 6), p2)
-	var p3 := p2.duplicate() as StandardMaterial3D
-	p3.uv1_scale = Vector3(6.6 / 0.8, 5.0 / 0.8, 1)
+	var porcelanato := ImageTexture.create_from_image(img2)
+	superficie(Vector3(0, 0.004, 8.0), Vector2(34, 6), Materiais.textura(porcelanato, Vector2(34.0 / 0.8, 6.0 / 0.8)))
+	var p3 := Materiais.textura(porcelanato, Vector2(6.6 / 0.8, 5.0 / 0.8))
 	superficie(Vector3(-5.7, 0.004, -8.5), Vector2(6.6, 5.0), p3)
 
 
@@ -788,12 +750,7 @@ func _ceu() -> ImageTexture:
 
 func _decorar() -> void:
 	# Janelas com vista da cidade
-	var vista := StandardMaterial3D.new()
-	vista.albedo_texture = _ceu()
-	vista.emission_enabled = true
-	vista.emission_texture = vista.albedo_texture
-	vista.emission_energy_multiplier = 0.9
-	vista.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	var vista := Materiais.textura(_ceu(), Vector2.ONE, Color.WHITE, 0.45)
 	var janelas := []
 	for x in [-14.0, 1.0, 5.0, 11.0, 14.5]:
 		janelas.append([Vector3(x, 0.9, -10.93), Vector3(2.4, 1.6, 0.02), true])

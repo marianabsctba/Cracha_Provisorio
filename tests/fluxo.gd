@@ -62,9 +62,26 @@ func _jogar_missao(n: int, esc) -> void:
 	await process_frame
 
 
+var _rx := RegEx.create_from_string("[{][^{}]*[|][^{}]*[}]|[Ee]stagi[aá]ria|ESTAGIÁRIA|[Pp]romovida|[Dd]emitida|MANDADA|[Bb]em-vinda|mocinha")
+
+
+## Com o gênero masculino, nenhum texto visível pode ter marcador ou forma feminina de quem joga.
+func _varrer(no: Node, onde: String) -> void:
+	for n in [no] + no.find_children("*", "", true, false):
+		var t := ""
+		if n is Label or n is Label3D or n is Button:
+			t = n.text
+		elif n is RichTextLabel:
+			t = n.text
+		if t != "" and _rx.search(t):
+			falhas += 1
+			print("FALHOU  texto no masculino (%s): %s" % [onde, t.left(120)])
+
+
 func _rodar() -> void:
 	var jogo = root.get_node("Jogo")
 	jogo.novo_jogo()
+	jogo.genero = "m"
 	var principal: Node = load("res://cenas/principal.tscn").instantiate()
 	root.add_child(principal)
 	await process_frame
@@ -74,6 +91,7 @@ func _rodar() -> void:
 		await process_frame
 		var esc = principal._atual
 		_ok(esc != null, "dia %d: escritório não abriu" % n)
+		_varrer(esc, "dia %d escritório" % n)
 		if Catalogo.dia(n)["tipo"] == "pc":
 			esc.sentou_no_pc.emit()
 			await process_frame
@@ -81,6 +99,7 @@ func _rodar() -> void:
 			_ok(fase.has_method("solucao_teste"), "dia %d: fase não abriu" % n)
 			fase.solucao_teste()
 			await process_frame
+			_varrer(fase, "dia %d fase" % n)
 			fase._entregar()
 		else:
 			_ok(esc.missao != null, "dia %d: missão 3D não carregou" % n)
@@ -94,6 +113,7 @@ func _rodar() -> void:
 	for tipo in ["promovida", "estagiaria", "demitida"]:
 		principal._mostrar_final(tipo)
 		await process_frame
+		_varrer(principal._camada, "final " + tipo)
 	principal._menu()
 	await process_frame
 	jogo.novo_jogo()

@@ -326,7 +326,7 @@ func _registrar_hash() -> void:
 		aviso("Extraia um JPEG válido antes de gerar o hash.", Estilo.ERRO)
 		return
 	_hash_registrado = sha256(_extraido)
-	_custodia.text += "2026-11-13 %s | assinatura_contrato.jpg (carving de 0x%X, %d bytes) | SHA-256 %s | estagiaria.prov\n" % [_relogio.text, ler_offset(_ini.text), _extraido.size(), _hash_registrado]
+	_custodia.text += "2026-11-13 %s | assinatura_contrato.jpg (carving de 0x%X, %d bytes) | SHA-256 %s | estagio.prov\n" % [_relogio.text, ler_offset(_ini.text), _extraido.size(), _hash_registrado]
 	aviso("Hash registrado na cadeia de custódia.", Estilo.OK)
 
 

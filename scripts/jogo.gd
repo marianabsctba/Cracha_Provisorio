@@ -5,6 +5,8 @@ const CAMINHO := "user://progresso.cfg"
 const TOTAL_DIAS := 30
 
 var dia_atual := 1
+var genero := ""       # "f" (estagiária) ou "m" (estagiário); vazio = ainda não escolheu
+var _rx_genero := RegEx.create_from_string("\\{([^{}|]*)\\|([^{}|]*)\\}")
 var notas := {}        # dia (int) -> nota 0..100
 var comentarios := {}  # dia (int) -> texto do resultado
 var cagadas := {}      # dia (int) -> descrição da cagada grave
@@ -12,6 +14,24 @@ var cagadas := {}      # dia (int) -> descrição da cagada grave
 
 func _ready() -> void:
 	carregar()
+
+
+## Troca os marcadores {feminino|masculino} pela forma do gênero escolhido.
+func txt(s: String) -> String:
+	if not s.contains("|"):
+		return s
+	var usar := 1 if genero != "m" else 2
+	var saida := ""
+	var pos := 0
+	for m in _rx_genero.search_all(s):
+		saida += s.substr(pos, m.get_start() - pos) + m.get_string(usar)
+		pos = m.get_end()
+	return saida + s.substr(pos)
+
+
+## Atalho: g("a", "o") devolve a forma do gênero escolhido.
+func g(feminino: String, masculino: String) -> String:
+	return masculino if genero == "m" else feminino
 
 
 func novo_jogo() -> void:
@@ -61,6 +81,7 @@ func desfecho() -> String:
 func salvar() -> void:
 	var cfg := ConfigFile.new()
 	cfg.set_value("jogo", "dia_atual", dia_atual)
+	cfg.set_value("jogo", "genero", genero)
 	cfg.set_value("jogo", "notas", notas)
 	cfg.set_value("jogo", "comentarios", comentarios)
 	cfg.set_value("jogo", "cagadas", cagadas)
@@ -72,6 +93,7 @@ func carregar() -> void:
 	if cfg.load(CAMINHO) != OK:
 		return
 	dia_atual = int(cfg.get_value("jogo", "dia_atual", 1))
+	genero = str(cfg.get_value("jogo", "genero", ""))
 	notas = cfg.get_value("jogo", "notas", {})
 	comentarios = cfg.get_value("jogo", "comentarios", {})
 	cagadas = cfg.get_value("jogo", "cagadas", {})

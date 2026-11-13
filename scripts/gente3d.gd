@@ -3,6 +3,7 @@ extends RefCounted
 ## Use: preload("res://scripts/gente3d.gd").criar("Valdecir")
 
 const PASTA := "res://modelos/personagens/"
+const Materiais := preload("res://scripts/materiais.gd")
 
 # nome -> [modelo, {material: cor}]
 const ELENCO := {
@@ -36,14 +37,7 @@ static func criar(nome: String, animacao := "Idle") -> Node3D:
 	var modelo: Node3D = cena.instantiate()
 	modelo.rotation.y = PI
 	var cores: Dictionary = dados[1]
-	for m in modelo.find_children("*", "MeshInstance3D", true, false):
-		var mi := m as MeshInstance3D
-		for i in mi.mesh.get_surface_count():
-			var mat := mi.mesh.surface_get_material(i)
-			if mat and cores.has(mat.resource_name) and mat is StandardMaterial3D:
-				var novo := (mat as StandardMaterial3D).duplicate() as StandardMaterial3D
-				novo.albedo_color = Color(cores[mat.resource_name])
-				mi.set_surface_override_material(i, novo)
+	Materiais.aplicar(modelo, cores)
 	tocar(modelo, animacao, true)
 	return modelo
 

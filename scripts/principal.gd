@@ -33,6 +33,9 @@ func _ready() -> void:
 			var v: PackedStringArray = str(args["olhar"]).split(",")
 			_atual.jogador.position = Vector3(float(v[0]), 0.1, float(v[1]))
 			_atual.jogador.rotation.y = float(v[2]) if v.size() > 2 else 0.0
+	elif args.has("escolha"):
+		_menu()
+		_escolher_genero(func(): pass)
 	elif args.has("final"):
 		_mostrar_final(args["final"])
 	else:
@@ -92,7 +95,7 @@ func _centro(raiz: Control, largura := 760) -> VBoxContainer:
 
 func _label(pai: Control, texto: String, tam := 16, cor: Color = Estilo.TEXTO, centro := false, fonte: Font = null) -> Label:
 	var l := Label.new()
-	l.text = texto
+	l.text = Jogo.txt(texto)
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	l.add_theme_font_size_override("font_size", tam)
 	l.add_theme_color_override("font_color", cor)
@@ -193,12 +196,13 @@ func _menu() -> void:
 	botoes.add_theme_constant_override("separation", 10)
 	v.add_child(botoes)
 	if Jogo.tem_progresso() and not Jogo.terminou():
-		_botao(botoes, "Continuar no dia %d  ·  %s" % [Jogo.dia_atual, Catalogo.dia(Jogo.dia_atual)["titulo"]], func(): _iniciar_dia(Jogo.dia_atual), true)
+		_botao(botoes, "Continuar no dia %d  ·  %s" % [Jogo.dia_atual, Catalogo.dia(Jogo.dia_atual)["titulo"]], func(): _escolher_genero(func(): _iniciar_dia(Jogo.dia_atual), true), true)
 	if Jogo.terminou():
 		_botao(botoes, "Ver meu desfecho", func(): _mostrar_final(Jogo.desfecho()), true)
 	_botao(botoes, "Novo estágio" if Jogo.tem_progresso() else "Começar o estágio", func():
-		Jogo.novo_jogo()
-		_iniciar_dia(1), not Jogo.tem_progresso())
+		_escolher_genero(func():
+			Jogo.novo_jogo()
+			_iniciar_dia(1)), not Jogo.tem_progresso())
 	if not Jogo.notas.is_empty():
 		var linha := HBoxContainer.new()
 		botoes.add_child(linha)
@@ -219,6 +223,64 @@ func _menu() -> void:
 	v.add_child(sep2)
 	_label(v, "Clique para olhar com o mouse  ·  WASD anda  ·  Shift corre  ·  E interage  ·  Esc solta o mouse", 13, Estilo.TEXTO_FRACO)
 	_label(v, "Tudo aqui é fictício: empresa, pessoas, IPs e chaves. As técnicas são de verdade; use só em ambiente autorizado.", 12, Color("6b7486"))
+
+
+## Pergunta como o crachá chama quem joga e segue para `depois`.
+## Com `so_se_faltar`, só pergunta quando ainda não há escolha salva.
+func _escolher_genero(depois: Callable, so_se_faltar := false) -> void:
+	if so_se_faltar and Jogo.genero != "":
+		depois.call()
+		return
+	var veu := ColorRect.new()
+	veu.color = Color(0.03, 0.04, 0.06, 0.82)
+	veu.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	veu.theme = Estilo.tema()
+	_camada.add_child(veu)
+	var cc := CenterContainer.new()
+	cc.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	veu.add_child(cc)
+	var painel := PanelContainer.new()
+	painel.add_theme_stylebox_override("panel", Estilo.caixa(Estilo.PAINEL, Estilo.DESTAQUE, 14, 32))
+	cc.add_child(painel)
+	var v := VBoxContainer.new()
+	v.add_theme_constant_override("separation", 14)
+	painel.add_child(v)
+	_label(v, "O RH vai imprimir o seu crachá", 30, Color("f4f1ea"), true, Estilo.titulo(800))
+	_label(v, "Como o crachá deve te chamar?", 17, Estilo.TEXTO_FRACO, true)
+	var linha := HBoxContainer.new()
+	linha.add_theme_constant_override("separation", 18)
+	linha.alignment = BoxContainer.ALIGNMENT_CENTER
+	v.add_child(linha)
+	for opcao in [["f", "ESTAGIÁRIA"], ["m", "ESTAGIÁRIO"]]:
+		var b := Button.new()
+		b.custom_minimum_size = Vector2(240, 150)
+		b.add_theme_stylebox_override("normal", Estilo.caixa(Color("f6f2ea"), Color("0b0e14"), 14, 16))
+		b.add_theme_stylebox_override("hover", Estilo.caixa(Color("ffffff"), Estilo.DESTAQUE, 14, 16))
+		b.add_theme_stylebox_override("pressed", Estilo.caixa(Color("ffe3f0"), Estilo.DESTAQUE, 14, 16))
+		linha.add_child(b)
+		var dentro := VBoxContainer.new()
+		dentro.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		dentro.alignment = BoxContainer.ALIGNMENT_CENTER
+		dentro.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		b.add_child(dentro)
+		var faixa := _label(dentro, "TABAJARA SEGUROS", 11, Color("8b95a8"), true, Estilo.texto(700))
+		faixa.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var nome := _label(dentro, opcao[1], 30, Color("171d29"), true, Estilo.titulo(800))
+		nome.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var carimbo := _label(dentro, "PROVISÓRIO", 16, Estilo.DESTAQUE, true, Estilo.titulo(800))
+		carimbo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var escolha: String = opcao[0]
+		b.pressed.connect(func():
+			Jogo.genero = escolha
+			Jogo.salvar()
+			veu.queue_free()
+			depois.call())
+	var voltar := Button.new()
+	voltar.text = "Voltar"
+	voltar.flat = true
+	voltar.add_theme_color_override("font_color", Estilo.TEXTO_FRACO)
+	voltar.pressed.connect(veu.queue_free)
+	v.add_child(voltar)
 
 
 # ================================================================ dia
@@ -272,7 +334,7 @@ func _resultado(r: Dictionary) -> void:
 	if nota >= 90:
 		frase = ["Jurema: nada mal. Não conta para ninguém que eu disse isso.", "Valdecir: excelente! Vou apresentar como ideia minha.", "Kauã: caramba, até eu entendi."].pick_random()
 	elif nota >= 60:
-		frase = ["Jurema: passável. O atacante também acha.", "Valdecir: bom, bom. O que é que você fez mesmo?", "Dona Cida: amanhã tem bolo de fubá, filha."].pick_random()
+		frase = ["Jurema: passável. O atacante também acha.", "Valdecir: bom, bom. O que é que você fez mesmo?", "Dona Cida: amanhã tem bolo de fubá, {filha|filho}."].pick_random()
 	else:
 		frase = ["Jurema: amanhã a gente finge que hoje não aconteceu.", "Valdecir: vou registrar como 'aprendizado'.", "Kauã: relaxa, eu derrubo produção toda semana."].pick_random()
 	_label(v, frase, 15, Estilo.CIANO, true)
@@ -305,17 +367,17 @@ func _mostrar_final(tipo: String) -> void:
 	v.add_child(espaco)
 	match tipo:
 		"promovida":
-			_label(v, "PROMOVIDA", 72, Estilo.OK, true, Estilo.titulo(800))
+			_label(v, "{PROMOVIDA|PROMOVIDO}", 72, Estilo.OK, true, Estilo.titulo(800))
 			_label(v, "Analista de Segurança da Informação Júnior", 22, Estilo.TEXTO, true)
-			_label(v, "O RH te chamou na sala. Você já estava preparando o discurso de despedida quando o Valdecir entrou com um bolo escrito \"PARABÉNS EFETIVADA\" (com a fonte Comic Sans, porque segundo ele \"transmite confiança\").\n\nO crachá novo não diz mais PROVISÓRIO. Diz ANALISTA. A foto ficou horrível, mas é sua.\n\nA Jurema deixou um post-it na sua mesa: \"Agora o problema é seu. Bem-vinda.\" Foi a coisa mais carinhosa que ela escreveu em 22 anos.\n\nO Kauã pediu para você aprovar um PR. Você recusou. Ele chorou. Vocês são amigos agora.", 17, Estilo.TEXTO)
+			_label(v, "O RH te chamou na sala. Você já estava preparando o discurso de despedida quando o Valdecir entrou com um bolo escrito \"PARABÉNS {EFETIVADA|EFETIVADO}\" (com a fonte Comic Sans, porque segundo ele \"transmite confiança\").\n\nO crachá novo não diz mais PROVISÓRIO. Diz ANALISTA. A foto ficou horrível, mas é sua.\n\nA Jurema deixou um post-it na sua mesa: \"Agora o problema é seu. Bem-{vinda|vindo}.\" Foi a coisa mais carinhosa que ela escreveu em 22 anos.\n\nO Kauã pediu para você aprovar um PR. Você recusou. Ele chorou. Vocês são amigos agora.", 17, Estilo.TEXTO)
 		"demitida":
-			_label(v, "MANDADA EMBORA", 72, Estilo.ERRO, true, Estilo.titulo(800))
+			_label(v, "{MANDADA|MANDADO} EMBORA", 72, Estilo.ERRO, true, Estilo.titulo(800))
 			_label(v, "Contrato de estágio encerrado \"por reestruturação\"", 20, Estilo.TEXTO_FRACO, true)
 			_label(v, "O Seu Josias recebeu ordem de recolher seu crachá. Ele pegou uma tesoura e cortou o PROVISÓRIO ao meio, devagar, olhando nos seus olhos. Depois te deu um abraço e um pão de queijo.\n\nO Valdecir disse que a decisão \"veio de cima\". A decisão veio dele. Ele estava em cima de uma cadeira trocando uma lâmpada quando decidiu.\n\nNo LinkadoIn você escreveu: \"Encerrando um ciclo de muito aprendizado. Gratidão.\" O post teve 3 curtidas: sua mãe, a Dona Cida e um recrutador oferecendo vaga no SOC.", 17, Estilo.TEXTO)
 		_:
-			_label(v, "ESTAGIÁRIA POR MAIS 15 ANOS", 56, Estilo.ALERTA, true, Estilo.titulo(800))
-			_label(v, "Nem demitida, nem promovida. Renovada. De novo. E de novo.", 20, Estilo.TEXTO_FRACO, true)
-			_label(v, "2027: o contrato é renovado \"por mais seis meses, para avaliar melhor\".\n2029: você ganha uma cadeira com rodinhas. Três rodinhas.\n2031: você treina o novo estagiário. Ele é efetivado antes de você.\n2033: a política de senhas faz 24 anos. Você ainda não conseguiu mudar a regra dos dígitos que somam 25.\n2035: você vira a pessoa que sabe onde fica tudo. Inclusive o Raspberry Pi do estagiário de 2026.\n2037: o Valdecir se aposenta. O cargo dele vai para o Kauã.\n2039: a Jurema se aposenta e te deixa a caneca dela. É a maior honraria da empresa.\n2041: o crachá ainda diz PROVISÓRIO. O plástico já está amarelo. Você é a funcionária mais antiga do andar. Oficialmente, você não existe no organograma.", 17, Estilo.TEXTO)
+			_label(v, "{ESTAGIÁRIA|ESTAGIÁRIO} POR MAIS 15 ANOS", 56, Estilo.ALERTA, true, Estilo.titulo(800))
+			_label(v, "Nem {demitida|demitido}, nem {promovida|promovido}. {Renovada|Renovado}. De novo. E de novo.", 20, Estilo.TEXTO_FRACO, true)
+			_label(v, "2027: o contrato é renovado \"por mais seis meses, para avaliar melhor\".\n2029: você ganha uma cadeira com rodinhas. Três rodinhas.\n2031: você treina o novo estagiário. Ele é efetivado antes de você.\n2033: a política de senhas faz 24 anos. Você ainda não conseguiu mudar a regra dos dígitos que somam 25.\n2035: você vira a pessoa que sabe onde fica tudo. Inclusive o Raspberry Pi do estagiário de 2026.\n2037: o Valdecir se aposenta. O cargo dele vai para o Kauã.\n2039: a Jurema se aposenta e te deixa a caneca dela. É a maior honraria da empresa.\n2041: o crachá ainda diz PROVISÓRIO. O plástico já está amarelo. Você é {a funcionária mais antiga|o funcionário mais antigo} do andar. Oficialmente, você não existe no organograma.", 17, Estilo.TEXTO)
 	if not Jogo.notas.is_empty():
 		_label(v, "\nBoletim do estágio  ·  média %.0f" % Jogo.media(), 18, Estilo.DESTAQUE)
 		var boletim := ""
@@ -328,6 +390,7 @@ func _mostrar_final(tipo: String) -> void:
 			_label(v, "Dia %d: %s" % [d, Jogo.cagadas[d]], 14, Estilo.ERRO)
 	_label(v, "\nRegras do RH: média 75 ou mais e nenhuma cagada grave, promoção. Média abaixo de 45 ou duas cagadas, rua. O resto, renovação eterna.", 13, Estilo.TEXTO_FRACO, true)
 	_botao(v, "Começar um novo estágio", func():
-		Jogo.novo_jogo()
-		_iniciar_dia(1))
+		_escolher_genero(func():
+			Jogo.novo_jogo()
+			_iniciar_dia(1)))
 	_botao(v, "Menu", _menu)
