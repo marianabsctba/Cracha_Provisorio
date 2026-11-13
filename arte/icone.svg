@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <!-- cordão -->
+  <path d="M58 0 L112 98" stroke="#b8336f" stroke-width="22" stroke-linecap="round"/>
+  <path d="M198 0 L144 98" stroke="#b8336f" stroke-width="22" stroke-linecap="round"/>
+  <path d="M58 0 L112 98" stroke="#ff4fa3" stroke-width="14" stroke-linecap="round"/>
+  <path d="M198 0 L144 98" stroke="#ff4fa3" stroke-width="14" stroke-linecap="round"/>
+  <!-- presilha -->
+  <rect x="106" y="86" width="44" height="26" rx="6" fill="#8b95a8"/>
+  <rect x="114" y="93" width="28" height="8" rx="4" fill="#3a4458"/>
+  <!-- cartão -->
+  <rect x="46" y="104" width="164" height="146" rx="16" fill="#0b0e14"/>
+  <rect x="50" y="108" width="156" height="138" rx="13" fill="#f6f2ea"/>
+  <path d="M50 121 a13 13 0 0 1 13 -13 h130 a13 13 0 0 1 13 13 v13 h-156 z" fill="#171d29"/>
+  <circle cx="66" cy="121" r="4" fill="#ff4fa3"/>
+  <rect x="76" y="118" width="54" height="6" rx="3" fill="#8b95a8"/>
+  <!-- foto -->
+  <rect x="64" y="146" width="50" height="60" rx="8" fill="#c9d3e6"/>
+  <circle cx="89" cy="168" r="11" fill="#6b7890"/>
+  <path d="M70 206 q19 -30 38 0 z" fill="#6b7890"/>
+  <!-- linhas de texto -->
+  <rect x="124" y="150" width="68" height="9" rx="4.5" fill="#3a4458"/>
+  <rect x="124" y="166" width="50" height="7" rx="3.5" fill="#a7b0c2"/>
+  <rect x="124" y="180" width="58" height="7" rx="3.5" fill="#a7b0c2"/>
+  <!-- código de barras -->
+  <g fill="#171d29">
+    <rect x="64" y="218" width="3" height="18"/><rect x="70" y="218" width="2" height="18"/>
+    <rect x="75" y="218" width="5" height="18"/><rect x="83" y="218" width="2" height="18"/>
+    <rect x="88" y="218" width="3" height="18"/><rect x="94" y="218" width="6" height="18"/>
+    <rect x="103" y="218" width="2" height="18"/><rect x="108" y="218" width="4" height="18"/>
+    <rect x="115" y="218" width="2" height="18"/><rect x="120" y="218" width="5" height="18"/>
+  </g>
+  <!-- carimbo -->
+  <g transform="rotate(-16 150 206)">
+    <rect x="112" y="190" width="92" height="32" rx="5" fill="none" stroke="#ff4fa3" stroke-width="5"/>
+    <rect x="122" y="199" width="72" height="5" rx="2.5" fill="#ff4fa3"/>
+    <rect x="122" y="209" width="52" height="5" rx="2.5" fill="#ff4fa3"/>
+  </g>
+</svg>

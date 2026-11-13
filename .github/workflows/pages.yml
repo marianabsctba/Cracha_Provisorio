@@ -55,6 +55,7 @@ jobs:
           mkdir -p build/web
           ~/godot/Godot_v${GODOT}-stable_linux.x86_64 --headless --path . --export-release "Web" build/web/index.html
           test -f build/web/index.wasm
+          rm -f build/web/index.png
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+<title>Crachá Provisório</title>
+<meta name="description" content="30 dias de estágio em segurança da informação. Nenhum deles no SOC.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root { --fundo: #0f131b; --rosa: #ff4fa3; --texto: #e6e9f0; --fraco: #8b95a8; }
+html, body, #canvas { margin: 0; padding: 0; border: 0; }
+body { background: var(--fundo); color: var(--texto); overflow: hidden; touch-action: none; }
+#canvas { display: block; position: fixed; inset: 0; width: 100vw !important; height: 100vh !important; }
+#canvas:focus { outline: none; }
+
+#status {
+	position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+	gap: 18px; padding: 16px; visibility: hidden;
+	background:
+		radial-gradient(900px 500px at 50% 35%, rgba(255, 79, 163, 0.14), transparent 70%),
+		linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px) 0 0 / 32px 32px,
+		linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px) 0 0 / 32px 32px,
+		var(--fundo);
+	font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+	transition: opacity 0.5s ease;
+}
+#status.saindo { opacity: 0; }
+#logo { width: min(180px, 38vw); height: auto; animation: balanca 3.2s ease-in-out infinite; transform-origin: 50% 0; filter: drop-shadow(0 12px 24px rgba(0,0,0,0.5)); }
+@keyframes balanca { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+h1 {
+	margin: 0; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 800;
+	font-size: clamp(30px, 6vw, 58px); letter-spacing: -0.02em; line-height: 1; text-align: center;
+}
+h1 span { color: var(--rosa); }
+.sub { margin: 0; color: var(--fraco); font-size: clamp(13px, 2.4vw, 16px); text-align: center; }
+#barra { width: min(420px, 80vw); height: 8px; border-radius: 99px; background: #222a3a; overflow: hidden; }
+#barra div { height: 100%; width: 0%; border-radius: 99px; background: linear-gradient(90deg, #c23c7e, var(--rosa)); transition: width 0.2s ease; }
+#mensagem { color: var(--fraco); font-size: 14px; min-height: 1.4em; text-align: center; }
+#aviso {
+	display: none; max-width: 520px; padding: 14px 18px; border-radius: 10px; text-align: center; line-height: 1.4;
+	background: #3a1f2b; border: 1px solid #9b3943; color: #f2d7de;
+}
+</style>
+$GODOT_HEAD_INCLUDE
+</head>
+<body>
+<canvas id="canvas">Seu navegador não suporta canvas.</canvas>
+<noscript>Este jogo precisa de JavaScript ligado.</noscript>
+
+<div id="status">
+	<svg id="logo" viewBox="0 0 256 256" aria-hidden="true">
+		<path d="M58 0 L112 98" stroke="#b8336f" stroke-width="22" stroke-linecap="round"/>
+		<path d="M198 0 L144 98" stroke="#b8336f" stroke-width="22" stroke-linecap="round"/>
+		<path d="M58 0 L112 98" stroke="#ff4fa3" stroke-width="14" stroke-linecap="round"/>
+		<path d="M198 0 L144 98" stroke="#ff4fa3" stroke-width="14" stroke-linecap="round"/>
+		<rect x="106" y="86" width="44" height="26" rx="6" fill="#8b95a8"/>
+		<rect x="114" y="93" width="28" height="8" rx="4" fill="#3a4458"/>
+		<rect x="46" y="104" width="164" height="146" rx="16" fill="#0b0e14"/>
+		<rect x="50" y="108" width="156" height="138" rx="13" fill="#f6f2ea"/>
+		<path d="M50 121 a13 13 0 0 1 13 -13 h130 a13 13 0 0 1 13 13 v13 h-156 z" fill="#171d29"/>
+		<circle cx="66" cy="121" r="4" fill="#ff4fa3"/>
+		<rect x="76" y="118" width="54" height="6" rx="3" fill="#8b95a8"/>
+		<rect x="64" y="146" width="50" height="60" rx="8" fill="#c9d3e6"/>
+		<circle cx="89" cy="168" r="11" fill="#6b7890"/>
+		<path d="M70 206 q19 -30 38 0 z" fill="#6b7890"/>
+		<rect x="124" y="150" width="68" height="9" rx="4.5" fill="#3a4458"/>
+		<rect x="124" y="166" width="50" height="7" rx="3.5" fill="#a7b0c2"/>
+		<g fill="#171d29"><rect x="64" y="218" width="3" height="18"/><rect x="70" y="218" width="2" height="18"/><rect x="75" y="218" width="5" height="18"/><rect x="83" y="218" width="2" height="18"/><rect x="88" y="218" width="3" height="18"/><rect x="94" y="218" width="6" height="18"/><rect x="103" y="218" width="2" height="18"/><rect x="108" y="218" width="4" height="18"/></g>
+		<g transform="rotate(-16 156 200)">
+			<rect x="108" y="184" width="100" height="32" rx="5" fill="rgba(255,79,163,0.08)" stroke="#ff4fa3" stroke-width="5"/>
+			<text x="158" y="207" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="800" font-size="17" fill="#ff4fa3" letter-spacing="0.5">PROVISÓRIO</text>
+		</g>
+	</svg>
+	<h1>Crachá <span>Provisório</span></h1>
+	<p class="sub">30 dias de estágio em segurança da informação. Nenhum deles no SOC.</p>
+	<div id="barra"><div></div></div>
+	<div id="mensagem">Imprimindo seu crachá...</div>
+	<div id="aviso"></div>
+</div>
+
+<script src="$GODOT_URL"></script>
+<script>
+const GODOT_CONFIG = $GODOT_CONFIG;
+const GODOT_THREADS_ENABLED = $GODOT_THREADS_ENABLED;
+const engine = new Engine(GODOT_CONFIG);
+
+(function () {
+	const status = document.getElementById('status');
+	const barra = document.querySelector('#barra div');
+	const mensagem = document.getElementById('mensagem');
+	const aviso = document.getElementById('aviso');
+	const frases = [
+		'Imprimindo seu crachá...',
+		'Pedindo acesso ao Valdecir (ele está em reunião)...',
+		'Esperando a Dona Cida passar o café...',
+		'Revisando a política de senhas de 2009...',
+		'Abrindo chamado para liberar o seu login...',
+		'Tirando a senha do Wi-Fi do quadro da copa...',
+		'Convencendo o Kauã a não commitar a senha...',
+		'Calibrando o sarcasmo da Jurema...',
+	];
+	let i = 0;
+	const giro = setInterval(() => { i = (i + 1) % frases.length; mensagem.textContent = frases[i]; }, 1800);
+	status.style.visibility = 'visible';
+
+	function falha(err) {
+		console.error(err);
+		clearInterval(giro);
+		aviso.textContent = (err && err.message) ? err.message : String(err || 'Algo deu errado ao abrir o jogo.');
+		aviso.style.display = 'block';
+		document.getElementById('barra').style.display = 'none';
+		mensagem.textContent = 'O estagiário anterior também viu essa mensagem. Tente recarregar a página.';
+	}
+
+	const faltando = Engine.getMissingFeatures({ threads: GODOT_THREADS_ENABLED });
+	if (faltando.length !== 0) {
+		falha(new Error('Seu navegador não tem o que o jogo precisa: ' + faltando.join(', ') + '. Tente um Chrome, Edge ou Firefox atualizado.'));
+		return;
+	}
+	engine.startGame({
+		onProgress: function (atual, total) {
+			if (atual > 0 && total > 0) {
+				barra.style.width = Math.min(100, (100 * atual / total)).toFixed(1) + '%';
+			}
+		},
+	}).then(() => {
+		clearInterval(giro);
+		barra.style.width = '100%';
+		status.classList.add('saindo');
+		setTimeout(() => status.remove(), 550);
+	}, falha);
+}());
+</script>
+</body>
+</html>

@@ -27,6 +27,27 @@ const PERSONAGENS := {
 
 static var _mono: Font
 static var _tema: Theme
+static var _fontes := {}
+
+
+## Fonte do texto (Plus Jakarta Sans, peso variável).
+static func texto(peso := 500) -> Font:
+	return _variavel("res://fontes/PlusJakartaSans.ttf", peso)
+
+
+## Fonte de títulos e placas (Bricolage Grotesque, peso variável).
+static func titulo(peso := 800) -> Font:
+	return _variavel("res://fontes/BricolageGrotesque.ttf", peso)
+
+
+static func _variavel(caminho: String, peso: int) -> Font:
+	var chave := "%s|%d" % [caminho, peso]
+	if not _fontes.has(chave):
+		var fv := FontVariation.new()
+		fv.base_font = load(caminho)
+		fv.variation_opentype = {TextServerManager.get_primary_interface().name_to_tag("wght"): peso}
+		_fontes[chave] = fv
+	return _fontes[chave]
 
 
 static func mono() -> Font:
@@ -61,7 +82,9 @@ static func tema() -> Theme:
 	if _tema != null:
 		return _tema
 	var t := Theme.new()
+	t.default_font = texto(500)
 	t.default_font_size = 15
+	t.set_font("bold_font", "RichTextLabel", texto(750))
 	t.set_color("font_color", "Label", TEXTO)
 	t.set_color("default_color", "RichTextLabel", TEXTO)
 	t.set_font("normal_font", "RichTextLabel", null)

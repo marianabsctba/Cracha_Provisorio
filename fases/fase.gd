@@ -84,6 +84,12 @@ func _montar_moldura() -> void:
 	raiz.add_child(barra)
 	var hb := HBoxContainer.new()
 	barra.add_child(hb)
+	var icone := TextureRect.new()
+	icone.texture = load("res://arte/icone.svg")
+	icone.custom_minimum_size = Vector2(24, 24)
+	icone.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icone.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	hb.add_child(icone)
 	var logo := Label.new()
 	logo.text = "TabajaraOS 3.11 for Workgroups"
 	logo.add_theme_color_override("font_color", Estilo.DESTAQUE)
@@ -92,6 +98,8 @@ func _montar_moldura() -> void:
 	var tit := Label.new()
 	tit.text = "   Dia %d de 30  ·  %s" % [dia, titulo]
 	tit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	tit.add_theme_font_override("font", Estilo.titulo(700))
+	tit.add_theme_font_size_override("font_size", 17)
 	hb.add_child(tit)
 	var cracha := Label.new()
 	cracha.text = "CRACHÁ: PROVISÓRIO   "

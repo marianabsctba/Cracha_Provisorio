@@ -54,7 +54,7 @@ func _ready() -> void:
 	cafe.name = "AvisoCafe"
 	var alvo_cafe: Node3D = escritorio.caixa(Vector3(-7.6, 0.9, -10.0), Vector3(0.6, 0.6, 0.3), Color(0, 0, 0, 0.0))
 	escritorio.interativo(alvo_cafe, "Examinar a cafeteira inteligente", _examinar_cafeteira)
-	var postit: Node3D = escritorio.caixa(Vector3(-9.0, 0.99, -1.18), Vector3(0.1, 0.1, 0.012), Color("ffe95a"), true)
+	var postit: Node3D = escritorio.caixa(Vector3(-9.12, 1.02, -1.15), Vector3(0.1, 0.1, 0.012), Color("ffe95a"), true)
 	escritorio.interativo(postit, "Ler o post-it no monitor", _examinar_postit)
 	escritorio.objetivo("O auditor chega às 14h. Colete as 8 evidências pelo andar (E), resolva as não conformidades que encontrar e, no seu computador, ligue cada evidência a um controle do Anexo A.")
 	_hud()

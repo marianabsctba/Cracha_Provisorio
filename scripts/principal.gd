@@ -60,6 +60,21 @@ func _tela() -> Control:
 	fundo.color = Estilo.FUNDO
 	fundo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	raiz.add_child(fundo)
+	# Brilho rosa suave no alto, como na tela de carregamento
+	var brilho := TextureRect.new()
+	var g := GradientTexture2D.new()
+	g.fill = GradientTexture2D.FILL_RADIAL
+	g.fill_from = Vector2(0.5, 0.3)
+	g.fill_to = Vector2(1.0, 0.9)
+	var grad := Gradient.new()
+	grad.set_color(0, Color(1.0, 0.31, 0.64, 0.16))
+	grad.set_color(1, Color(1.0, 0.31, 0.64, 0.0))
+	g.gradient = grad
+	brilho.texture = g
+	brilho.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	brilho.stretch_mode = TextureRect.STRETCH_SCALE
+	brilho.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	raiz.add_child(brilho)
 	_camada.add_child(raiz)
 	return raiz
 
@@ -75,22 +90,36 @@ func _centro(raiz: Control, largura := 760) -> VBoxContainer:
 	return v
 
 
-func _label(pai: Control, texto: String, tam := 16, cor: Color = Estilo.TEXTO, centro := false) -> Label:
+func _label(pai: Control, texto: String, tam := 16, cor: Color = Estilo.TEXTO, centro := false, fonte: Font = null) -> Label:
 	var l := Label.new()
 	l.text = texto
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	l.add_theme_font_size_override("font_size", tam)
 	l.add_theme_color_override("font_color", cor)
+	if fonte:
+		l.add_theme_font_override("font", fonte)
 	if centro:
 		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	pai.add_child(l)
 	return l
 
 
-func _botao(pai: Control, texto: String, acao: Callable) -> Button:
+func _botao(pai: Control, texto: String, acao: Callable, primario := false) -> Button:
 	var b := Button.new()
 	b.text = texto
-	b.custom_minimum_size = Vector2(0, 42)
+	b.custom_minimum_size = Vector2(0, 46)
+	b.add_theme_font_override("font", Estilo.texto(700))
+	b.add_theme_font_size_override("font_size", 16)
+	if primario:
+		b.add_theme_stylebox_override("normal", Estilo.caixa(Estilo.DESTAQUE, Estilo.DESTAQUE, 10, 18))
+		b.add_theme_stylebox_override("hover", Estilo.caixa(Color("ff6db3"), Color("ffd0e6"), 10, 18))
+		b.add_theme_stylebox_override("pressed", Estilo.caixa(Color("d93d8a"), Estilo.DESTAQUE, 10, 18))
+		b.add_theme_color_override("font_color", Color("1a0d14"))
+		b.add_theme_color_override("font_hover_color", Color("1a0d14"))
+		b.add_theme_color_override("font_pressed_color", Color("1a0d14"))
+	else:
+		b.add_theme_stylebox_override("normal", Estilo.caixa(Color(0.09, 0.11, 0.16, 0.85), Estilo.BORDA, 10, 18))
+		b.add_theme_stylebox_override("hover", Estilo.caixa(Color(0.13, 0.16, 0.23, 0.95), Estilo.DESTAQUE, 10, 18))
 	b.pressed.connect(acao)
 	pai.add_child(b)
 	return b
@@ -100,34 +129,96 @@ func _botao(pai: Control, texto: String, acao: Callable) -> Button:
 
 func _menu() -> void:
 	_limpar()
-	var raiz := _tela()
-	var v := _centro(raiz, 640)
-	_label(v, "TABAJARA SEGUROS S.A.  ·  Departamento de Segurança da Informação (1 pessoa e meia)", 13, Estilo.TEXTO_FRACO, true)
-	_label(v, "CRACHÁ PROVISÓRIO", 58, Estilo.DESTAQUE, true)
-	_label(v, "30 dias de estágio em segurança. Nenhum deles no SOC.", 18, Estilo.TEXTO, true)
+	# Fundo: o andar da Tabajara com a câmera passeando
+	var fundo3d: Node3D = Escritorio.new()
+	fundo3d.vitrine = true
+	add_child(fundo3d)
+	_atual = fundo3d
+	var raiz := Control.new()
+	raiz.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	raiz.theme = Estilo.tema()
+	_camada.add_child(raiz)
+	var veu := TextureRect.new()
+	var g := GradientTexture2D.new()
+	var grad := Gradient.new()
+	grad.offsets = PackedFloat32Array([0.0, 0.42, 0.75, 1.0])
+	grad.colors = PackedColorArray([Color(0.059, 0.075, 0.106, 0.97), Color(0.059, 0.075, 0.106, 0.9), Color(0.059, 0.075, 0.106, 0.35), Color(0.059, 0.075, 0.106, 0.1)])
+	g.gradient = grad
+	g.fill_from = Vector2(0, 0)
+	g.fill_to = Vector2(1, 0)
+	veu.texture = g
+	veu.stretch_mode = TextureRect.STRETCH_SCALE
+	veu.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	raiz.add_child(veu)
+
+	var coluna := MarginContainer.new()
+	coluna.set_anchors_and_offsets_preset(Control.PRESET_LEFT_WIDE)
+	coluna.custom_minimum_size = Vector2(600, 0)
+	for lado in ["left", "right", "top", "bottom"]:
+		coluna.add_theme_constant_override("margin_" + lado, {"left": 72, "right": 24, "top": 40, "bottom": 32}[lado])
+	raiz.add_child(coluna)
+	var v := VBoxContainer.new()
+	v.alignment = BoxContainer.ALIGNMENT_CENTER
+	v.add_theme_constant_override("separation", 10)
+	coluna.add_child(v)
+
+	var topo := HBoxContainer.new()
+	topo.add_theme_constant_override("separation", 18)
+	v.add_child(topo)
+	var logo := TextureRect.new()
+	logo.texture = load("res://arte/icone.svg")
+	logo.custom_minimum_size = Vector2(118, 118)
+	logo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	logo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	logo.pivot_offset = Vector2(59, 0)
+	topo.add_child(logo)
+	var tw := create_tween().set_loops()
+	tw.tween_property(logo, "rotation", 0.07, 1.6).set_trans(Tween.TRANS_SINE)
+	tw.tween_property(logo, "rotation", -0.07, 1.6).set_trans(Tween.TRANS_SINE)
+	var nome := VBoxContainer.new()
+	nome.add_theme_constant_override("separation", -22)
+	nome.alignment = BoxContainer.ALIGNMENT_CENTER
+	topo.add_child(nome)
+	_label(nome, "Crachá", 76, Color("f4f1ea"), false, Estilo.titulo(800)).autowrap_mode = TextServer.AUTOWRAP_OFF
+	_label(nome, "Provisório", 76, Estilo.DESTAQUE, false, Estilo.titulo(800)).autowrap_mode = TextServer.AUTOWRAP_OFF
+
+	_label(v, "30 dias de estágio em segurança da informação.\nNenhum deles no SOC.", 20, Estilo.TEXTO, false, Estilo.texto(600))
+	_label(v, "Tabajara Seguros S.A.  ·  Departamento de Segurança da Informação (1 pessoa e meia)", 13, Estilo.TEXTO_FRACO)
 	var sep := Control.new()
-	sep.custom_minimum_size = Vector2(0, 14)
+	sep.custom_minimum_size = Vector2(0, 12)
 	v.add_child(sep)
+	var botoes := VBoxContainer.new()
+	botoes.custom_minimum_size = Vector2(440, 0)
+	botoes.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	botoes.add_theme_constant_override("separation", 10)
+	v.add_child(botoes)
 	if Jogo.tem_progresso() and not Jogo.terminou():
-		_botao(v, "Continuar no dia %d" % Jogo.dia_atual, func(): _iniciar_dia(Jogo.dia_atual))
+		_botao(botoes, "Continuar no dia %d  ·  %s" % [Jogo.dia_atual, Catalogo.dia(Jogo.dia_atual)["titulo"]], func(): _iniciar_dia(Jogo.dia_atual), true)
 	if Jogo.terminou():
-		_botao(v, "Ver meu desfecho", func(): _mostrar_final(Jogo.desfecho()))
-	_botao(v, "Novo estágio" if Jogo.tem_progresso() else "Começar o estágio", func():
+		_botao(botoes, "Ver meu desfecho", func(): _mostrar_final(Jogo.desfecho()), true)
+	_botao(botoes, "Novo estágio" if Jogo.tem_progresso() else "Começar o estágio", func():
 		Jogo.novo_jogo()
-		_iniciar_dia(1))
+		_iniciar_dia(1), not Jogo.tem_progresso())
 	if not Jogo.notas.is_empty():
 		var linha := HBoxContainer.new()
-		v.add_child(linha)
+		botoes.add_child(linha)
 		var ob := OptionButton.new()
 		ob.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		ob.fit_to_longest_item = false
+		ob.clip_text = true
 		var dias := Jogo.notas.keys()
 		dias.sort()
 		for d in dias:
 			ob.add_item("Dia %d: %s (nota %d)" % [d, Catalogo.dia(d)["titulo"], Jogo.notas[d]], d)
 		linha.add_child(ob)
-		_botao(linha, "Refazer este dia", func(): _iniciar_dia(ob.get_selected_id()))
-	_label(v, "\nControles: clique para olhar com o mouse, WASD anda, Shift corre, E interage, Esc solta o mouse.\nNo computador, use o mouse e o teclado normalmente.", 14, Estilo.TEXTO_FRACO, true)
-	_label(v, "Tudo aqui é fictício: empresa, pessoas, IPs e chaves. As técnicas são de verdade. Só use em ambiente autorizado.", 12, Estilo.TEXTO_FRACO, true)
+		_botao(linha, "Refazer", func(): _iniciar_dia(ob.get_selected_id()))
+		var prog := _label(v, "Progresso: %d de 30 dias  ·  média %.0f" % [Jogo.notas.size(), Jogo.media() * 30.0 / maxf(Jogo.notas.size(), 1)], 13, Estilo.TEXTO_FRACO)
+		prog.autowrap_mode = TextServer.AUTOWRAP_OFF
+	var sep2 := Control.new()
+	sep2.custom_minimum_size = Vector2(0, 8)
+	v.add_child(sep2)
+	_label(v, "Clique para olhar com o mouse  ·  WASD anda  ·  Shift corre  ·  E interage  ·  Esc solta o mouse", 13, Estilo.TEXTO_FRACO)
+	_label(v, "Tudo aqui é fictício: empresa, pessoas, IPs e chaves. As técnicas são de verdade; use só em ambiente autorizado.", 12, Color("6b7486"))
 
 
 # ================================================================ dia
@@ -171,7 +262,7 @@ func _resultado(r: Dictionary) -> void:
 	_label(v, "FIM DO DIA %d  ·  %s" % [n, Catalogo.dia(n)["titulo"]], 16, Estilo.TEXTO_FRACO, true)
 	var nota := int(r.get("nota", 0))
 	var cor := Estilo.OK if nota >= 75 else (Estilo.ALERTA if nota >= 45 else Estilo.ERRO)
-	_label(v, "%d" % nota, 84, cor, true)
+	_label(v, "%d" % nota, 96, cor, true, Estilo.titulo(800))
 	_label(v, str(r.get("comentario", "")), 17, Estilo.TEXTO, true)
 	var cagada := str(r.get("cagada", ""))
 	if cagada != "":
@@ -214,15 +305,15 @@ func _mostrar_final(tipo: String) -> void:
 	v.add_child(espaco)
 	match tipo:
 		"promovida":
-			_label(v, "PROMOVIDA", 64, Estilo.OK, true)
+			_label(v, "PROMOVIDA", 72, Estilo.OK, true, Estilo.titulo(800))
 			_label(v, "Analista de Segurança da Informação Júnior", 22, Estilo.TEXTO, true)
 			_label(v, "O RH te chamou na sala. Você já estava preparando o discurso de despedida quando o Valdecir entrou com um bolo escrito \"PARABÉNS EFETIVADA\" (com a fonte Comic Sans, porque segundo ele \"transmite confiança\").\n\nO crachá novo não diz mais PROVISÓRIO. Diz ANALISTA. A foto ficou horrível, mas é sua.\n\nA Jurema deixou um post-it na sua mesa: \"Agora o problema é seu. Bem-vinda.\" Foi a coisa mais carinhosa que ela escreveu em 22 anos.\n\nO Kauã pediu para você aprovar um PR. Você recusou. Ele chorou. Vocês são amigos agora.", 17, Estilo.TEXTO)
 		"demitida":
-			_label(v, "MANDADA EMBORA", 64, Estilo.ERRO, true)
+			_label(v, "MANDADA EMBORA", 72, Estilo.ERRO, true, Estilo.titulo(800))
 			_label(v, "Contrato de estágio encerrado \"por reestruturação\"", 20, Estilo.TEXTO_FRACO, true)
 			_label(v, "O Seu Josias recebeu ordem de recolher seu crachá. Ele pegou uma tesoura e cortou o PROVISÓRIO ao meio, devagar, olhando nos seus olhos. Depois te deu um abraço e um pão de queijo.\n\nO Valdecir disse que a decisão \"veio de cima\". A decisão veio dele. Ele estava em cima de uma cadeira trocando uma lâmpada quando decidiu.\n\nNo LinkadoIn você escreveu: \"Encerrando um ciclo de muito aprendizado. Gratidão.\" O post teve 3 curtidas: sua mãe, a Dona Cida e um recrutador oferecendo vaga no SOC.", 17, Estilo.TEXTO)
 		_:
-			_label(v, "ESTAGIÁRIA POR MAIS 15 ANOS", 52, Estilo.ALERTA, true)
+			_label(v, "ESTAGIÁRIA POR MAIS 15 ANOS", 56, Estilo.ALERTA, true, Estilo.titulo(800))
 			_label(v, "Nem demitida, nem promovida. Renovada. De novo. E de novo.", 20, Estilo.TEXTO_FRACO, true)
 			_label(v, "2027: o contrato é renovado \"por mais seis meses, para avaliar melhor\".\n2029: você ganha uma cadeira com rodinhas. Três rodinhas.\n2031: você treina o novo estagiário. Ele é efetivado antes de você.\n2033: a política de senhas faz 24 anos. Você ainda não conseguiu mudar a regra dos dígitos que somam 25.\n2035: você vira a pessoa que sabe onde fica tudo. Inclusive o Raspberry Pi do estagiário de 2026.\n2037: o Valdecir se aposenta. O cargo dele vai para o Kauã.\n2039: a Jurema se aposenta e te deixa a caneca dela. É a maior honraria da empresa.\n2041: o crachá ainda diz PROVISÓRIO. O plástico já está amarelo. Você é a funcionária mais antiga do andar. Oficialmente, você não existe no organograma.", 17, Estilo.TEXTO)
 	if not Jogo.notas.is_empty():

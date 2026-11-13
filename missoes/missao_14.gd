@@ -75,13 +75,17 @@ func _mover_funcionario(delta: float) -> void:
 	if _t < 4.0:
 		f.position = Vector3(0, 0, lerpf(10.0, 5.6, _t / 4.0))
 		f.rotation.y = 0.0
+		escritorio.animar(f, "Walk")
 	elif _t < 4.6:
+		escritorio.animar(f, "Interact")   # passa o crachá no leitor
 		if _porta_aberta <= 0.0:
 			_porta_aberta = 3.2   # bip do crachá
 	elif _t < 8.0:
 		f.position = Vector3(0, 0, lerpf(5.6, 1.0, (_t - 4.6) / 3.4))
+		escritorio.animar(f, "Walk")
 	elif _t < 10.0:
 		f.position = Vector3(lerpf(0.0, -2.5, (_t - 8.0) / 2.0), 0, 1.0)
+		f.rotation.y = PI / 2
 	else:
 		f.position = Vector3(0, -10, 10)   # "sumiu" e volta a entrar no próximo ciclo
 
