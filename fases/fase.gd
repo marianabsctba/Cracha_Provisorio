@@ -229,7 +229,12 @@ func chat(quem: String, msg: String) -> void:
 func rotulo(texto: String, tamanho := 15, cor: Color = Estilo.TEXTO, pai: Control = null) -> Label:
 	var l := Label.new()
 	l.text = texto
-	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	# Dentro de linhas e grades, quebra automática deixa o rótulo com largura zero
+	# (vira uma coluna de letras); ali o texto fica numa linha só.
+	if pai is HBoxContainer or pai is GridContainer:
+		l.autowrap_mode = TextServer.AUTOWRAP_OFF
+	else:
+		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	l.add_theme_font_size_override("font_size", tamanho)
 	l.add_theme_color_override("font_color", cor)
 	(pai if pai else corpo).add_child(l)

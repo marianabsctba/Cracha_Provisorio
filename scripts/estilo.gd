@@ -31,7 +31,12 @@ static var _tema: Theme
 
 static func mono() -> Font:
 	if _mono == null:
-		_mono = load("res://fontes/JetBrainsMono.ttf")
+		# Sem ligaduras: "--" e "->" aparecem como dois caracteres, como no terminal.
+		var fv := FontVariation.new()
+		fv.base_font = load("res://fontes/JetBrainsMono.ttf")
+		fv.opentype_features = {TextServerManager.get_primary_interface().name_to_tag("calt"): 0,
+			TextServerManager.get_primary_interface().name_to_tag("liga"): 0}
+		_mono = fv
 	return _mono
 
 
@@ -80,6 +85,7 @@ static func tema() -> Theme:
 		t.set_stylebox("read_only", tipo, caixa(Color("12161f"), BORDA, 4, 8))
 		t.set_color("font_color", tipo, TEXTO)
 		t.set_color("caret_color", tipo, DESTAQUE)
+		t.set_color("font_readonly_color", tipo, Color("c3cad8"))
 		t.set_color("selection_color", tipo, Color(1.0, 0.31, 0.64, 0.35))
 		t.set_font("font", tipo, mono())
 		t.set_font_size("font_size", tipo, 14)
