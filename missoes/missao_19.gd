@@ -56,14 +56,14 @@ func _process(delta: float) -> void:
 
 
 func _contar_paredes(de: Vector3, ate: Vector3, j: CharacterBody3D) -> int:
-	var espaco: Node3D = escritorio.get_world_3d().direct_space_state
+	var espaco: PhysicsDirectSpaceState3D = escritorio.get_world_3d().direct_space_state
 	var excluir: Array[RID] = [j.get_rid(), (_ap as CollisionObject3D).get_rid()]
 	var n := 0
 	var inicio := de
 	for _i in 6:
 		var q := PhysicsRayQueryParameters3D.create(inicio, ate)
 		q.exclude = excluir
-		var r := espaco.intersect_ray(q)
+		var r: Dictionary = espaco.intersect_ray(q)
 		if r.is_empty():
 			break
 		var col: CollisionObject3D = r["collider"]

@@ -1,0 +1,72 @@
+name: Publicar no GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  GODOT: "4.7.2"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache do Godot
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/godot
+            ~/.local/share/godot/export_templates
+          key: godot-${{ env.GODOT }}-web
+
+      - name: Baixar Godot e modelos de exportação web
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/godot ~/.local/share/godot/export_templates/${GODOT}.stable
+          cd ~/godot
+          wget -q https://github.com/godotengine/godot/releases/download/${GODOT}-stable/Godot_v${GODOT}-stable_linux.x86_64.zip
+          unzip -q Godot_v${GODOT}-stable_linux.x86_64.zip && rm Godot_v${GODOT}-stable_linux.x86_64.zip
+          wget -q https://github.com/godotengine/godot/releases/download/${GODOT}-stable/Godot_v${GODOT}-stable_export_templates.tpz
+          unzip -q -j Godot_v${GODOT}-stable_export_templates.tpz 'templates/web*' 'templates/version.txt' -d ~/.local/share/godot/export_templates/${GODOT}.stable
+          rm Godot_v${GODOT}-stable_export_templates.tpz
+
+      - name: Importar o projeto e rodar os testes das fases
+        run: |
+          G=~/godot/Godot_v${GODOT}-stable_linux.x86_64
+          $G --headless --path . --import || true
+          $G --headless --path . --script res://tests/run_tests.gd
+          $G --headless --path . --script res://tests/fluxo.gd
+
+      - name: Exportar para web
+        run: |
+          mkdir -p build/web
+          ~/godot/Godot_v${GODOT}-stable_linux.x86_64 --headless --path . --export-release "Web" build/web/index.html
+          test -f build/web/index.wasm
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.publicar.outputs.page_url }}
+    steps:
+      - id: publicar
+        uses: actions/deploy-pages@v4

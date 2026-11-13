@@ -53,6 +53,7 @@ const FALAS := {
 func _ready() -> void:
 	_montar_ambiente()
 	_montar_andar()
+	_decorar()
 	_montar_npcs()
 	_montar_hud()
 	jogador = Jogador.new()
@@ -265,7 +266,7 @@ func _montar_ambiente() -> void:
 	env.background_color = Color("1a1f2b")
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.ambient_light_color = Color("c9d3e6")
-	env.ambient_light_energy = 0.55
+	env.ambient_light_energy = 0.38
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	env.glow_enabled = true
 	env.glow_intensity = 0.35
@@ -273,7 +274,7 @@ func _montar_ambiente() -> void:
 	add_child(amb)
 	var sol := DirectionalLight3D.new()
 	sol.rotation_degrees = Vector3(-60, 30, 0)
-	sol.light_energy = 0.45
+	sol.light_energy = 0.25
 	sol.light_color = Color("fff3e0")
 	add_child(sol)
 	for p in [Vector3(-10, 2.8, 2), Vector3(0, 2.8, 2), Vector3(10, 2.8, 2), Vector3(-12, 2.8, -7),
@@ -281,7 +282,7 @@ func _montar_ambiente() -> void:
 		var luz := OmniLight3D.new()
 		luz.position = p
 		luz.omni_range = 9.0
-		luz.light_energy = 0.9
+		luz.light_energy = 0.75
 		luz.light_color = Color("fff6ea")
 		add_child(luz)
 
@@ -290,16 +291,20 @@ func _parede(x1: float, z1: float, x2: float, z2: float, cor := Color("d8d4cc"),
 	var meio := Vector3((x1 + x2) / 2.0, 0, (z1 + z2) / 2.0)
 	var tam := Vector3(maxf(absf(x2 - x1), 0.15), alt, maxf(absf(z2 - z1), 0.15))
 	caixa(meio, tam, cor)
+	if cor.a >= 1.0:
+		# barrado escuro e faixa rosa da identidade visual
+		var baixo := Vector3(tam.x + (0.04 if tam.x < 0.2 else 0.0), 0.9, tam.z + (0.04 if tam.z < 0.2 else 0.0))
+		caixa(meio, baixo, cor.darkened(0.35), false)
+		caixa(meio + Vector3(0, 0.9, 0), Vector3(baixo.x + 0.002, 0.06, baixo.z + 0.002), Color("c23c7e"), false)
 
 
 func _montar_andar() -> void:
-	var piso_cor := Color("3b4456")
-	caixa(Vector3(0, -0.1, 0), Vector3(34, 0.1, 22), piso_cor)
+	_piso()
 	caixa(Vector3(0, 3.0, 0), Vector3(34, 0.1, 22), Color("e8e6e1"), false)
 	# Painéis de luz no teto
 	for x in [-10, -4, 2, 8, 13]:
 		for z in [-7, -1, 4]:
-			caixa(Vector3(x, 2.94, z), Vector3(1.4, 0.04, 0.6), Color("fff8ec"), false, 1.2)
+			caixa(Vector3(x, 2.94, z), Vector3(1.4, 0.04, 0.6), Color("fff8ec"), false, 0.8)
 	# Paredes externas
 	_parede(-17, -11, 17, -11)
 	_parede(-17, 11, 17, 11)
@@ -396,6 +401,64 @@ func _montar_andar() -> void:
 	texto3d(Vector3(15.6, 1.5, 2.5), "Impressora\n'Godzilla'", 18, Color("333")).billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	_planta(Vector3(-16, 0, 4.2))
 	_planta(Vector3(16, 0, -3.2))
+
+
+func _piso() -> void:
+	# Carpete em placas, gerado por código (sem arquivo de textura).
+	var img := Image.create(128, 128, false, Image.FORMAT_RGB8)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 42
+	for y in 128:
+		for x in 128:
+			var placa := (int(x / 64) + int(y / 64)) % 2
+			var base := Color("3a4458") if placa == 0 else Color("343d50")
+			var listra := (x if placa == 0 else y) % 4 == 0
+			var c := base.darkened(0.08) if listra else base
+			c = c.lightened(rng.randf_range(-0.03, 0.04))
+			img.set_pixel(x, y, c)
+	var tex := ImageTexture.create_from_image(img)
+	var m := StandardMaterial3D.new()
+	m.albedo_texture = tex
+	m.uv1_scale = Vector3(17, 11, 1)
+	m.roughness = 1.0
+	var piso := caixa(Vector3(0, -0.1, 0), Vector3(34, 0.1, 22), Color.WHITE)
+	(piso.get_child(1) as MeshInstance3D).material_override = m
+
+
+func _decorar() -> void:
+	# Janelas nas paredes externas
+	for x in [-14.0, 1.0, 5.0, 11.0, 14.5]:
+		caixa(Vector3(x, 1.0, -10.92), Vector3(2.4, 1.5, 0.02), Color("9fc4e8"), false, 0.7)
+		caixa(Vector3(x, 2.5, -10.9), Vector3(2.5, 0.06, 0.04), Color("444b58"), false)
+	for z in [-7.5, 0.5, 8.0]:
+		caixa(Vector3(-16.92, 1.0, z), Vector3(0.02, 1.5, 2.4), Color("9fc4e8"), false, 0.7)
+	for z in [0.5, 8.0]:
+		caixa(Vector3(16.92, 1.0, z), Vector3(0.02, 1.5, 2.4), Color("9fc4e8"), false, 0.7)
+	# Cartazes
+	_cartaz(Vector3(-16.9, 1.5, -2.6), PI / 2, "TROQUE SUA SENHA\nA CADA 30 DIAS!", "Política POL-SEG-0001", Color("ffc94d"))
+	_cartaz(Vector3(16.9, 1.5, -1.5), -PI / 2, "VOCÊ É O FIREWALL\nHUMANO", "(o outro firewall está em\n'permitir tudo')", Color("ff4fa3"))
+	_cartaz(Vector3(-0.4, 1.5, -6.5), PI / 2, "CLICOU NO LINK?\nAVISE A TI", "Ramal 2210. Atendemos\nde 10h às 10h15.", Color("38d9e8"))
+	_cartaz(Vector3(7.9, 1.5, -8.0), -PI / 2, "MESA LIMPA,\nTELA BLOQUEADA", "Windows + L. Não é difícil.", Color("5ee38a"))
+	# Relógio de parede e bebedouro
+	var relogio := caixa(Vector3(-13.0, 2.2, -10.92), Vector3(0.5, 0.5, 0.04), Color("f4f4f2"), false)
+	texto3d(Vector3(0, 0.25, 0.03), "09:00", 22, Color("222"), relogio)
+	caixa(Vector3(-1.5, 0, -4.4), Vector3(0.4, 1.1, 0.4), Color("dfe7ef"))
+	caixa(Vector3(-1.5, 1.1, -4.4), Vector3(0.3, 0.4, 0.3), Color("7fb8f0"), false, 0.3)
+	# Quadro branco do Kauã
+	var quadro := caixa(Vector3(16.9, 1.0, 0.9), Vector3(0.04, 1.1, 1.8), Color("fafafa"), false)
+	var t := texto3d(Vector3(-0.03, 0.55, 0), "SPRINT 47\n- cotação em contêiner\n- tirar senha do código (urgente?)\n- aprender o que é JWT", 14, Color("1b5e20"), quadro)
+	t.rotation.y = -PI / 2
+
+
+func _cartaz(pos: Vector3, rot: float, titulo: String, sub: String, cor: Color) -> void:
+	var c := Node3D.new()
+	c.position = pos
+	c.rotation.y = rot
+	add_child(c)
+	caixa(Vector3(0, 0, 0), Vector3(1.1, 1.0, 0.02), Color("15171c"), false, 0.0, c)
+	caixa(Vector3(0, 0.88, 0.012), Vector3(1.0, 0.06, 0.01), cor, false, 1.0, c)
+	texto3d(Vector3(0, 0.6, 0.02), titulo, 22, cor, c)
+	texto3d(Vector3(0, 0.25, 0.02), sub, 12, Color("c8cdd8"), c)
 
 
 func _mesa(pos: Vector3, cor_cadeira: Color, semente: int, minha := false) -> void:
