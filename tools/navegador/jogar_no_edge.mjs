@@ -17,7 +17,15 @@ await new Promise(r => ws.onopen = r);
 await env('Page.enable');
 await env('Emulation.setDeviceMetricsOverride', { width: 1280, height: 720, deviceScaleFactor: 1, mobile: false });
 await env('Page.navigate', { url });
-await esperar(12000);
+const inicio = Date.now();
+for (;;) {
+  const r = await env('Runtime.evaluate', { expression: '!document.getElementById("status")', returnByValue: true });
+  if (r && r.result && r.result.value) break;
+  if (Date.now() - inicio > 90000) { console.log('carregamento não terminou'); break; }
+  await esperar(500);
+}
+console.log('carregou em', ((Date.now() - inicio) / 1000).toFixed(1), 's');
+await esperar(2500);
 const clique = async (x, y) => { for (const type of ['mousePressed', 'mouseReleased']) await env('Input.dispatchMouseEvent', { type, x, y, button: 'left', clickCount: 1 }); };
 const responde = async (rotulo) => {
   const r = await Promise.race([env('Runtime.evaluate', { expression: 'new Promise(r => requestAnimationFrame(() => requestAnimationFrame(() => r("ok"))))', awaitPromise: true }), esperar(8000).then(() => null)]);
