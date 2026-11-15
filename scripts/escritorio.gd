@@ -479,6 +479,20 @@ func _teto() -> void:
 			caixa(Vector3(x, 2.955, z), Vector3(1.1, 0.02, 0.5), Color("fffaf0"), false, 1.0)
 
 
+## Corpo sólido invisível (só colisão), com a base em `pos`.
+func colisor(pos: Vector3, tam: Vector3) -> StaticBody3D:
+	var corpo := StaticBody3D.new()
+	var forma := CollisionShape3D.new()
+	var bs := BoxShape3D.new()
+	bs.size = tam
+	forma.shape = bs
+	forma.position.y = tam.y / 2.0
+	corpo.add_child(forma)
+	corpo.position = pos
+	add_child(corpo)
+	return corpo
+
+
 ## Plano texturizado (UV de 0 a 1 no plano todo), virado para cima ou para baixo (teto).
 func superficie(centro: Vector3, tam: Vector2, mat: Material, teto := false) -> MeshInstance3D:
 	var mi := MeshInstance3D.new()
@@ -817,7 +831,9 @@ const PLAQUINHAS := {
 
 func _mesa(pos: Vector3, semente: int, minha := false) -> void:
 	var cores_cadeira := [Color("30364a"), Color("3a3048"), Color("2e3e3b")]
-	modelo("desk", pos, Vector3(1.5, 0.76, 0.8), PI, {"wood": Color("e6e1d6"), "metal": Color("6b7280")})
+	# Só o tampo é sólido: dá para olhar (e mirar) embaixo da mesa, como numa de verdade.
+	modelo("desk", pos, Vector3(1.5, 0.76, 0.8), PI, {"wood": Color("e6e1d6"), "metal": Color("6b7280")}, false)
+	colisor(pos + Vector3(0, 0.66, 0), Vector3(1.5, 0.1, 0.8))
 	modelo("chairDesk", pos + Vector3(0, 0, 0.72), 1.1, 0.0, {"carpet": cores_cadeira[semente % 3], "metal": Color("3a3f4a")}, false)
 	_monitor(pos + Vector3(0, 0.76, -0.2), 0.0, Estilo.DESTAQUE if minha else [Color("2a5bd7"), Color("1f8a70"), Color("3d3d6b")][semente % 3])
 	modelo("computerKeyboard", pos + Vector3(0, 0.76, 0.12), Vector3(0.42, 0.03, 0.15), PI, {}, false)

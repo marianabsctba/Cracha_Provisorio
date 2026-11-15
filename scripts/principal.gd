@@ -33,6 +33,10 @@ func _ready() -> void:
 			var v: PackedStringArray = str(args["olhar"]).split(",")
 			_atual.jogador.position = Vector3(float(v[0]), 0.1, float(v[1]))
 			_atual.jogador.rotation.y = float(v[2]) if v.size() > 2 else 0.0
+			if v.size() > 3:
+				_atual.jogador.camera.rotation.x = float(v[3])
+			if args.has("sem_dialogo"):
+				_atual._escolher(-1)
 	elif args.has("escolha"):
 		_menu()
 		_escolher_genero(func(): pass)

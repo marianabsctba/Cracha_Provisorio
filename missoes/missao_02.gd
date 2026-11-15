@@ -12,7 +12,7 @@ const APARELHOS := [
 	["Telefone IP da recepção", Vector3(-5.6, 1.15, 7.4), Vector3(0.22, 0.12, 0.2), Color("222831"), "00:04:F2:91:7A:03", "10.0.7.11", "5060 (SIP)", "sem etiqueta (caiu atrás do balcão)", true, "A etiqueta está no chão, embaixo do balcão."],
 	["Notebook do Valdecir", Vector3(-12.4, 0.77, -7.9), Vector3(0.36, 0.03, 0.25), Color("9aa0aa"), "3C:52:82:0E:44:91", "10.0.3.101", "445 (SMB), 3389 (RDP)", "PAT-0001", true, "Adesivo: 'Eu amo meu chefe'. Foi presente dele para ele mesmo."],
 	["Switch do andar", Vector3(-16.6, 0.6, 0.6), Vector3(0.25, 0.5, 0.9), Color("2a2f3a"), "70:4C:A5:10:00:01", "10.0.0.2", "22 (SSH), 443 (HTTPS)", "PAT-0003", true, "Tem 19 MACs na tabela de endereços. A planilha tem 14."],
-	["Raspberry Pi embaixo da mesa", Vector3(-9.0, 0.02, -1.15), Vector3(0.1, 0.03, 0.07), Color("2f8f46"), "B8:27:EB:5D:13:37", "10.0.5.66", "22 (SSH), 8080 (HTTP)", "post-it: 'NÃO DESLIGAR. ass: estagiário 2024'", false, "OUI B8:27:EB é da Raspberry Pi Foundation. Cabo de rede ligado direto na tomada da parede."],
+	["Raspberry Pi embaixo da mesa", Vector3(-9.55, 0.0, -0.85), Vector3(0.16, 0.06, 0.12), Color("c8203f"), "B8:27:EB:5D:13:37", "10.0.5.66", "22 (SSH), 8080 (HTTP)", "post-it: 'NÃO DESLIGAR. ass: estagiário 2024'", false, "OUI B8:27:EB é da Raspberry Pi Foundation. Cabo de rede ligado direto na tomada da parede."],
 	["Impressora velha da gerência", Vector3(-10.0, 0, -10.2), Vector3(0.6, 0.7, 0.5), Color("cfcab8"), "00:10:83:0A:BB:01", "10.0.3.250", "23 (Telnet), 21 (FTP), 80 (HTTP)", "sem etiqueta", false, "LaserJet de 1999. Telnet aberto, senha padrão. O Valdecir chama de 'a confiável'."],
 	["Smart TV da sala de reunião", Vector3(3.8, 1.0, -10.85), Vector3.ZERO, Color.WHITE, "A8:23:FE:77:10:42", "10.0.5.140", "8008, 8009 (cast), 9080", "sem etiqueta", false, "Ligada na rede corporativa para 'espelhar o PowerPoint'. Também espelha qualquer um no Wi-Fi."],
 	["Roteador 4G do Kauã", Vector3(10.45, 0.76, -1.2), Vector3(0.14, 0.04, 0.1), Color("f2f2f2"), "0C:80:63:AA:19:5E", "10.0.5.77", "80 (HTTP), 53 (DNS)", "sem etiqueta", false, "Escondido atrás do monitor. 'É pra fugir do proxy, rapidinho.' Faz ponte entre a rede interna e a internet."],
@@ -57,8 +57,24 @@ func _ready() -> void:
 		else:
 			no = escritorio.caixa(a[1], a[2], a[3])
 			escritorio.caixa(Vector3(a[2].x * 0.3, a[2].y, 0), Vector3(0.025, 0.025, 0.025), Color("39ff6a"), false, 4.0, no)
+			# Área de mira maior que o aparelho, para não precisar acertar o pixel
+			var mira := CollisionShape3D.new()
+			var bm := BoxShape3D.new()
+			bm.size = Vector3(maxf(a[2].x, 0.3), maxf(a[2].y, 0.2), maxf(a[2].z, 0.3))
+			mira.shape = bm
+			mira.position.y = bm.size.y / 2.0
+			no.add_child(mira)
 		escritorio.interativo(no, "Inspecionar: " + a[0], _inspecionar.bind(i))
-	escritorio.objetivo("Inspecione os aparelhos do andar (E), compare o MAC com a planilha e etiquete o que não está lá. Depois entregue no seu computador.")
+	# Detalhes do Raspberry: cabo de rede até a tomada da parede e o post-it em cima
+	escritorio.caixa(Vector3(-9.55, 0.06, -0.85), Vector3(0.09, 0.006, 0.09), Color("ffe95a"), false)
+	escritorio.caixa(Vector3(-9.55, 0.0, -1.1), Vector3(0.015, 0.012, 0.42), Color("2a5bd7"), false)
+	escritorio.caixa(Vector3(-9.48, 0.0, -0.85), Vector3(0.06, 0.012, 0.015), Color("111111"), false)
+	escritorio.caixa(Vector3(-9.49, 0.04, -0.79), Vector3(0.02, 0.012, 0.004), Color("ff3030"), false, 6.0)
+	var nota: Label3D = escritorio.texto3d(Vector3(-9.55, 0.07, -0.85), "NÃO
+DESLIGAR", 6, Color("222222"), null)
+	nota.rotation.x = -PI / 2
+	nota.outline_size = 0
+	escritorio.objetivo("Inspecione os aparelhos do andar (E), compare o MAC com a planilha e etiquete o que não está lá. Depois entregue no seu computador. Dica: olhe também embaixo das mesas e no alto das paredes.")
 	_atualizar_hud()
 
 

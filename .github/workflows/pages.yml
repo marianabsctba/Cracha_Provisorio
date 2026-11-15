@@ -50,6 +50,7 @@ jobs:
           $G --headless --path . --script res://tests/run_tests.gd
           $G --headless --path . --script res://tests/fluxo.gd
           GENERO=n $G --headless --path . --script res://tests/fluxo.gd
+          $G --headless --path . --script res://tests/alcance.gd
 
       - name: Exportar para web
         run: |
